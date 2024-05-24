@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
-import { HelpController } from './help/help.controller';
 import { ConfigModule } from '@nestjs/config';
+import { AuthModule } from './auth/auth.module';
+import { HelpModule } from './help/help.module';
 
 @Module({
   imports: [
@@ -8,8 +9,10 @@ import { ConfigModule } from '@nestjs/config';
       isGlobal: true,
       envFilePath: '.env',
     }),
+    AuthModule,
+    HelpModule,
   ],
-  controllers: [HelpController],
+  controllers: [],
   providers: [],
   exports: [],
 })
