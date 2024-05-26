@@ -24,7 +24,18 @@
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Stotify  API for spotify statistics
+
+## Envioronment variables 
+```bash
+PORT = (application port)
+API_CONTEXT = (prefix api context)
+MONGODB_URI = (uri MongoDB)
+API_SPOTIFY_CLIENT_ID = (client Spotify API)
+API_SPOTIFY_CLIENT_SECRET = (secret Spotify API)
+HOST_ACCOUNTS_API_SPOTIFY = (host Spotify API accounts)
+REDIRECT_URI_CALLBACK = (redirect uri This app hosted)
+```
 
 ## Installation
 
