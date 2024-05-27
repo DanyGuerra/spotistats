@@ -1,9 +1,16 @@
-import { Controller, Get, Query, Res } from '@nestjs/common';
+import {
+  BadRequestException,
+  Controller,
+  Get,
+  Query,
+  Res,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateAuthLogDto } from 'src/auth/create-auth-log.dto';
 import { Response } from 'express';
 import * as queryString from 'querystring';
 import { ConfigService } from '@nestjs/config';
+import { generateShortUUID } from 'src/utils/uuid-utils';
 
 @Controller('auth')
 export class AuthController {
@@ -18,9 +25,17 @@ export class AuthController {
       'hostAccountsApiSpotify',
     );
 
-    // TODO: agregar todas las query params
+    const redirectUri = this.configService.get<string>('redirectUriCallback');
+    const clientId = this.configService.get<string>('apiSptifyClientId');
+    const apiUserScope = this.configService.get<string>('apiUserScope');
+
     const queryParams = {
       response_type: 'code',
+      client_id: clientId,
+      scope: apiUserScope,
+      redirect_uri: redirectUri,
+      state: generateShortUUID(16),
+      show_dialog: true,
     };
 
     res.redirect(
@@ -30,7 +45,10 @@ export class AuthController {
 
   @Get('callback')
   async authCallBack(@Query() authLogs: CreateAuthLogDto) {
-    console.log(authLogs);
+    if (!authLogs.state) {
+      throw new BadRequestException('state_mismatch');
+    }
+
     const newLog = await this.authService.createNewLog(authLogs);
     const token = await this.authService.createUserToken(newLog);
 
