@@ -8,4 +8,5 @@ export default () => ({
   apiSptifySecret: process.env.API_SPOTIFY_CLIENT_SECRET,
   hostAccountsApiSpotify: process.env.HOST_ACCOUNTS_API_SPOTIFY,
   redirectUriCallback: process.env.REDIRECT_URI_CALLBACK,
+  apiUserScope: process.env.API_SPORIFY_USER_SCOPE,
 });

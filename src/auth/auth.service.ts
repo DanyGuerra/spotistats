@@ -35,13 +35,13 @@ export class AuthService {
 
     const urlEncodedData = qs.stringify({
       grant_type: 'authorization_code',
-      redirect_uri: redirectUriCallback,
       code: authLog.code,
+      redirect_uri: redirectUriCallback,
     });
 
     const { data } = await firstValueFrom(
       this.httpService
-        .post(`${hostAccountsApiSpotify}token`, urlEncodedData)
+        .post(`${hostAccountsApiSpotify}/api/token`, urlEncodedData)
         .pipe(
           catchError((error) => {
             const {
