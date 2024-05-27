@@ -1,4 +1,4 @@
-import { Controller, Post, Query } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateAuthLogDto } from 'src/auth/create-auth-log.dto';
 
@@ -6,8 +6,9 @@ import { CreateAuthLogDto } from 'src/auth/create-auth-log.dto';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post('callback')
+  @Get('callback')
   async authCallBack(@Query() authLogs: CreateAuthLogDto) {
+    console.log(authLogs);
     const newLog = await this.authService.createNewLog(authLogs);
     const token = await this.authService.createUserToken(newLog);
 
