@@ -13,8 +13,8 @@ export class AuthController {
     const token = await this.authService.createUserToken(newLog);
 
     const dataUpdate: CreateAuthLogDto = {
-      accessToken: token.access_token,
-      refreshToken: token.refresh_token,
+      access_token: token.access_token,
+      refresh_token: token.refresh_token,
     };
 
     const updateLog = await this.authService.updateLog(newLog.id, dataUpdate);

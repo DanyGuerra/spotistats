@@ -15,9 +15,9 @@ export class CreateAuthLogDto {
 
   @IsString()
   @IsOptional()
-  readonly accessToken?: string;
+  readonly access_token?: string;
 
   @IsString()
   @IsOptional()
-  readonly refreshToken?: string;
+  readonly refresh_token?: string;
 }
