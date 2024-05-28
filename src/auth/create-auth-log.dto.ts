@@ -11,7 +11,7 @@ export class CreateAuthLogDto {
 
   @IsString()
   @IsOptional()
-  readonly username?: string;
+  readonly usernameId?: string;
 
   @IsString()
   @IsOptional()

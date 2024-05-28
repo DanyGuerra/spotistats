@@ -7,6 +7,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
 import { HttpConfigModule } from './http-config.module';
 import { LoggerModule } from 'nestjs-pino';
+import { StatsModule } from './stats/stats.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { LoggerModule } from 'nestjs-pino';
     AuthModule,
     HelpModule,
     HttpConfigModule,
+    StatsModule,
   ],
   controllers: [],
   providers: [],
