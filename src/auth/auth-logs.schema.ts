@@ -5,4 +5,5 @@ export const AuthLogSchema = new Schema({
   state: String,
   access_token: String,
   refresh_token: String,
+  usernameId: String,
 });

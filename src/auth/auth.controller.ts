@@ -12,11 +12,13 @@ import * as queryString from 'querystring';
 import { ConfigService } from '@nestjs/config';
 import { generateShortUUID } from 'src/utils/uuid-utils';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
+import { StatsService } from 'src/stats/stats.service';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
+    private readonly statsService: StatsService,
     private readonly configService: ConfigService,
     @InjectPinoLogger(AuthController.name) private readonly logger: PinoLogger,
   ) {}
@@ -58,10 +60,12 @@ export class AuthController {
 
     const newLog = await this.authService.createNewLog(authLogs);
     const token = await this.authService.createUserToken(newLog);
+    const username = await this.statsService.getUserProfile(token.access_token);
 
     const dataUpdate: CreateAuthLogDto = {
       access_token: token.access_token,
       refresh_token: token.refresh_token,
+      usernameId: username.id,
     };
 
     const updateLog = await this.authService.updateLog(newLog.id, dataUpdate);

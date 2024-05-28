@@ -11,59 +11,78 @@ import { HttpService } from '@nestjs/axios';
 import { catchError, firstValueFrom } from 'rxjs';
 import * as qs from 'querystring';
 import { ConfigService } from '@nestjs/config';
+import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 export class AuthService {
+  private hostAccountsApiSpotify: string;
+  private redirectUriCallback: string;
+
   constructor(
     @InjectModel('AuthLog') private readonly authLogModel: Model<AuthLog>,
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
-  ) {}
+    @InjectPinoLogger(AuthService.name) private readonly logger: PinoLogger,
+  ) {
+    this.hostAccountsApiSpotify = this.configService.get<string>(
+      'hostAccountsApiSpotify',
+    );
+    this.redirectUriCallback = this.configService.get<string>(
+      'redirectUriCallback',
+    );
+  }
 
   createNewLog(createAuthLogDto: CreateAuthLogDto): Promise<AuthLog> {
+    this.logger.info('Starting create new log...');
     const createdCar = new this.authLogModel(createAuthLogDto);
-    return createdCar.save();
+    const savedCar = createdCar.save();
+    this.logger.info('Ending create new log');
+    return savedCar;
   }
 
   async createUserToken(authLog: AuthLog): Promise<AuthLog> {
-    const hostAccountsApiSpotify = this.configService.get<string>(
-      'hostAccountsApiSpotify',
-    );
-    const redirectUriCallback = this.configService.get<string>(
-      'redirectUriCallback',
-    );
+    this.logger.info('Starting create user token...');
 
     const urlEncodedData = qs.stringify({
       grant_type: 'authorization_code',
       code: authLog.code,
-      redirect_uri: redirectUriCallback,
+      redirect_uri: this.redirectUriCallback,
     });
 
     const { data } = await firstValueFrom(
       this.httpService
-        .post(`${hostAccountsApiSpotify}/api/token`, urlEncodedData)
+        .post(`${this.hostAccountsApiSpotify}/api/token`, urlEncodedData)
         .pipe(
           catchError((error) => {
             const {
               response: { data },
             } = error;
 
+            this.logger.error(error);
+
             throw new InternalServerErrorException(data.error_description);
           }),
         ),
     );
 
+    this.logger.info('Ending create user token...');
+
     return data;
   }
 
   async updateLog(id: string, authLog: CreateAuthLogDto) {
+    this.logger.info('Starting update log...');
+
     const updateLog = await this.authLogModel
       .findByIdAndUpdate(id, authLog, { new: true })
       .exec();
 
     if (!updateLog) {
+      this.logger.error('Log not found');
       throw new NotFoundException('Log not found');
     }
+
+    this.logger.info('Ending update log...');
 
     return updateLog;
   }
