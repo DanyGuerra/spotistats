@@ -4,6 +4,7 @@ import { ResponseInterceptor } from './response-interceptor/response.interceptor
 import { ValidationPipe } from '@nestjs/common';
 import * as dotenv from 'dotenv';
 import { ConfigService } from '@nestjs/config';
+import { Logger } from 'nestjs-pino';
 
 Reflector;
 
@@ -11,6 +12,7 @@ async function bootstrap() {
   dotenv.config();
 
   const app = await NestFactory.create(AppModule);
+  app.useLogger(app.get(Logger));
 
   const configService = app.get(ConfigService);
   const port = configService.get<string>('port');

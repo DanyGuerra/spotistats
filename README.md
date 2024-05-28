@@ -24,10 +24,12 @@
 
 ## Description
 
-Stotify  API for spotify statistics
+Stotify API for spotify statistics
 
-## Envioronment variables 
+## Envioronment variables
+
 ```bash
+NODE_ENV = (envioronment)
 PORT = (application port)
 API_CONTEXT = (prefix api context)
 MONGODB_URI = (uri MongoDB)
@@ -35,6 +37,7 @@ API_SPOTIFY_CLIENT_ID = (client Spotify API)
 API_SPOTIFY_CLIENT_SECRET = (secret Spotify API)
 HOST_ACCOUNTS_API_SPOTIFY = (host Spotify API accounts)
 REDIRECT_URI_CALLBACK = (redirect uri This app hosted)
+API_SPORIFY_USER_SCOPE = (user permissions)
 ```
 
 ## Installation
@@ -81,4 +84,4 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 
 ## License
 
-Nest is [MIT licensed](LICENSE). 
+Nest is [MIT licensed](LICENSE).

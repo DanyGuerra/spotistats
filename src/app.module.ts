@@ -6,6 +6,7 @@ import configuration from './config/configuration';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
 import { HttpConfigModule } from './http-config.module';
+import { LoggerModule } from 'nestjs-pino';
 
 @Module({
   imports: [
@@ -20,6 +21,21 @@ import { HttpConfigModule } from './http-config.module';
         uri: configService.get<string>('database.uri'),
       }),
       inject: [ConfigService],
+    }),
+    LoggerModule.forRoot({
+      pinoHttp: {
+        level: process.env.NODE_ENV !== 'production' ? 'debug' : 'info',
+        transport:
+          process.env.NODE_ENV !== 'production'
+            ? { target: 'pino-pretty' }
+            : undefined,
+
+        autoLogging: false,
+        serializers: {
+          req: () => undefined,
+          res: () => undefined,
+        },
+      },
     }),
     AuthModule,
     HelpModule,
