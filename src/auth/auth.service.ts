@@ -6,7 +6,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateAuthLogDto } from 'src/auth/create-auth-log.dto';
-import { AuthLog } from 'src/auth/auth-log.interface';
+import { AuthLog } from 'src/auth/auth-logs.schema';
 import { HttpService } from '@nestjs/axios';
 import { catchError, firstValueFrom } from 'rxjs';
 import * as qs from 'querystring';
