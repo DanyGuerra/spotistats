@@ -7,10 +7,13 @@ export class AuthLog extends Document {
   code?: string;
 
   @Prop()
-  access_token?: string;
+  displayName?: string;
 
   @Prop()
-  refresh_token?: string;
+  accessToken?: string;
+
+  @Prop()
+  refreshToken?: string;
 
   @Prop()
   usernameId?: string;

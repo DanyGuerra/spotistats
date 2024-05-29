@@ -63,9 +63,10 @@ export class AuthController {
     const username = await this.statsService.getUserProfile(token.access_token);
 
     const dataUpdate: CreateAuthLogDto = {
-      access_token: token.access_token,
-      refresh_token: token.refresh_token,
+      accessToken: token.access_token,
+      refreshToken: token.refresh_token,
       usernameId: username.id,
+      displayName: username.display_name,
     };
 
     const updateLog = await this.authService.updateLog(newLog.id, dataUpdate);
