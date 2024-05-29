@@ -12,6 +12,7 @@ import { catchError, firstValueFrom } from 'rxjs';
 import * as qs from 'querystring';
 import { ConfigService } from '@nestjs/config';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
+import { IResponseAccessToken } from 'src/common/interfaces/IResponseAccessToken';
 
 @Injectable()
 export class AuthService {
@@ -40,7 +41,7 @@ export class AuthService {
     return savedCar;
   }
 
-  async createUserToken(authLog: AuthLog): Promise<AuthLog> {
+  async createUserToken(authLog: AuthLog): Promise<IResponseAccessToken> {
     this.logger.info('Starting create user token...');
 
     const urlEncodedData = qs.stringify({
@@ -51,7 +52,10 @@ export class AuthService {
 
     const { data } = await firstValueFrom(
       this.httpService
-        .post(`${this.hostAccountsApiSpotify}/api/token`, urlEncodedData)
+        .post<IResponseAccessToken>(
+          `${this.hostAccountsApiSpotify}/api/token`,
+          urlEncodedData,
+        )
         .pipe(
           catchError((error) => {
             const {

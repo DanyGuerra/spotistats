@@ -3,6 +3,7 @@ import { HttpService } from '@nestjs/axios';
 import { catchError, firstValueFrom } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
+import { ISpotifyProfile } from 'src/common/interfaces/ISpotifyProfile';
 
 @Injectable()
 export class StatsService {
@@ -24,17 +25,19 @@ export class StatsService {
     };
 
     const { data } = await firstValueFrom(
-      this.httpService.get(`${this.hostApiSpotify}/v1/me`, { headers }).pipe(
-        catchError((error) => {
-          const {
-            response: { data },
-          } = error;
+      this.httpService
+        .get<ISpotifyProfile>(`${this.hostApiSpotify}/v1/me`, { headers })
+        .pipe(
+          catchError((error) => {
+            const {
+              response: { data },
+            } = error;
 
-          this.logger.error(error);
+            this.logger.error(error);
 
-          throw new InternalServerErrorException(data.error_description);
-        }),
-      ),
+            throw new InternalServerErrorException(data.error_description);
+          }),
+        ),
     );
 
     this.logger.info('Ending Starting getUserProfile');
