@@ -26,20 +26,22 @@ export class AuthService {
     private readonly configService: ConfigService,
     @InjectPinoLogger(AuthService.name) private readonly logger: PinoLogger,
   ) {
-    this.hostAccountsApiSpotify = this.configService.get<string>(
-      'hostAccountsApiSpotify',
-    );
-    this.redirectUriCallback = this.configService.get<string>(
-      'redirectUriCallback',
-    );
+    const { hostAccountsApiSpotify, redirectUriCallback } =
+      this.configService.get<{
+        hostAccountsApiSpotify: string;
+        redirectUriCallback: string;
+      }>('spotifyApi');
+
+    this.hostAccountsApiSpotify = hostAccountsApiSpotify;
+    this.redirectUriCallback = redirectUriCallback;
   }
 
   createNewLog(createAuthLogDto: CreateAuthLogDto): Promise<AuthLog> {
     this.logger.info('Starting create new log...');
-    const createdCar = new this.authLogModel(createAuthLogDto);
-    const savedCar = createdCar.save();
+    const createdAuth = new this.authLogModel(createAuthLogDto);
+    const savedAuth = createdAuth.save();
     this.logger.info('Ending create new log');
-    return savedCar;
+    return savedAuth;
   }
 
   async createUserToken(authLog: AuthLog): Promise<IResponseAccessToken> {

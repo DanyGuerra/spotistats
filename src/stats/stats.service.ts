@@ -15,7 +15,9 @@ export class StatsService {
     private readonly configService: ConfigService,
     @InjectPinoLogger(StatsService.name) private readonly logger: PinoLogger,
   ) {
-    this.hostApiSpotify = this.configService.get<string>('hostApiSpotify');
+    this.hostApiSpotify = this.configService.get<string>(
+      'spotifyApi.hostApiSpotify',
+    );
   }
 
   async getUserProfile(accessToken: string) {

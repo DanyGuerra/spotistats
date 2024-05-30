@@ -9,8 +9,12 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     HttpModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => {
-        const clientId = configService.get<string>('apiSptifyClientId');
-        const clientSecret = configService.get<string>('apiSptifySecret');
+        const clientId = configService.get<string>(
+          'spotifyApi.apiSptifyClientId',
+        );
+        const clientSecret = configService.get<string>(
+          'spotifyApi.apiSptifySecret',
+        );
         const auth = Buffer.from(`${clientId}:${clientSecret}`).toString(
           'base64',
         );

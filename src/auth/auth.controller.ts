@@ -27,12 +27,18 @@ export class AuthController {
   login(@Res() res: Response) {
     this.logger.info('Starting auth/login route...');
     const hostApiSpotify = this.configService.get<string>(
-      'hostAccountsApiSpotify',
+      'spotifyApi.hostAccountsApiSpotify',
     );
 
-    const redirectUri = this.configService.get<string>('redirectUriCallback');
-    const clientId = this.configService.get<string>('apiSptifyClientId');
-    const apiUserScope = this.configService.get<string>('apiUserScope');
+    const redirectUri = this.configService.get<string>(
+      'spotifyApi.redirectUriCallback',
+    );
+    const clientId = this.configService.get<string>(
+      'spotifyApi.apiSptifyClientId',
+    );
+    const apiUserScope = this.configService.get<string>(
+      'spotifyApi.apiUserScope',
+    );
 
     const queryParams = {
       response_type: 'code',
