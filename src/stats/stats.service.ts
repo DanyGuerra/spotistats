@@ -4,6 +4,7 @@ import { catchError, firstValueFrom } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { ISpotifyProfile } from 'src/common/interfaces/ISpotifyProfile';
+import { IErrorResponse } from 'src/common/interfaces/IErrorResponse';
 
 @Injectable()
 export class StatsService {
@@ -31,7 +32,7 @@ export class StatsService {
           catchError((error) => {
             const {
               response: { data },
-            } = error;
+            }: { response: { data: IErrorResponse } } = error;
 
             this.logger.error(error);
 

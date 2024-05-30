@@ -13,6 +13,7 @@ import * as qs from 'querystring';
 import { ConfigService } from '@nestjs/config';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { IResponseAccessToken } from 'src/common/interfaces/IResponseAccessToken';
+import { IErrorResponse } from 'src/common/interfaces/IErrorResponse';
 
 @Injectable()
 export class AuthService {
@@ -60,7 +61,7 @@ export class AuthService {
           catchError((error) => {
             const {
               response: { data },
-            } = error;
+            }: { response: { data: IErrorResponse } } = error;
 
             this.logger.error(error);
 
