@@ -2,17 +2,19 @@ import {
   BadRequestException,
   Controller,
   Get,
+  Post,
   Query,
   Res,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateAuthLogDto } from 'src/auth/create-auth-log.dto';
+import { CreateAuthLogDto } from 'src/auth/dto/create-auth-log.dto';
 import { Response } from 'express';
 import * as queryString from 'querystring';
 import { ConfigService } from '@nestjs/config';
 import { generateShortUUID } from 'src/utils/uuid-utils';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { StatsService } from 'src/stats/stats.service';
+import { GetByIdDto } from './dto/get-by-id.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -49,7 +51,7 @@ export class AuthController {
       show_dialog: true,
     };
 
-    this.logger.info('Ending auth/login route...');
+    this.logger.info('End auth/login route...');
 
     res.redirect(
       `${hostApiSpotify}/authorize?${queryString.stringify(queryParams)}`,
@@ -79,8 +81,21 @@ export class AuthController {
 
     const updateLog = await this.authService.updateLog(newLog.id, dataUpdate);
 
-    this.logger.info('Ending auth/callback route');
+    this.logger.info('End auth/callback route');
 
     return updateLog;
+  }
+
+  @Post('token/refresh')
+  async refreshTokenById(@Query() querys: GetByIdDto) {
+    this.logger.info('Starting refresh Token by id...');
+
+    const { id } = querys;
+
+    const updateAuthLog = await this.authService.updateAuthToken(id);
+
+    this.logger.info('End refresh Token by id');
+
+    return updateAuthLog;
   }
 }

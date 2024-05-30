@@ -43,7 +43,7 @@ export class StatsService {
         ),
     );
 
-    this.logger.info('Ending Starting getUserProfile');
+    this.logger.info('End Starting getUserProfile');
 
     return data;
   }
