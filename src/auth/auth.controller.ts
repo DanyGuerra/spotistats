@@ -7,14 +7,15 @@ import {
   Res,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateAuthLogDto } from 'src/auth/dto/create-auth-log.dto';
+import { CreateAuthLogDto } from 'src/common/dto/create-auth-log.dto';
 import { Response } from 'express';
 import * as queryString from 'querystring';
 import { ConfigService } from '@nestjs/config';
 import { generateShortUUID } from 'src/utils/uuid-utils';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { StatsService } from 'src/stats/stats.service';
-import { GetByIdDto } from './dto/get-by-id.dto';
+import { GetByIdDto } from '../common/dto/get-by-id.dto';
+import { AuthLog } from './auth-logs.schema';
 
 @Controller('auth')
 export class AuthController {
@@ -28,25 +29,24 @@ export class AuthController {
   @Get('login')
   login(@Res() res: Response) {
     this.logger.info('Starting auth/login route...');
-    const hostApiSpotify = this.configService.get<string>(
-      'spotifyApi.hostAccountsApiSpotify',
-    );
 
-    const redirectUri = this.configService.get<string>(
-      'spotifyApi.redirectUriCallback',
-    );
-    const clientId = this.configService.get<string>(
-      'spotifyApi.apiSptifyClientId',
-    );
-    const apiUserScope = this.configService.get<string>(
-      'spotifyApi.apiUserScope',
-    );
+    const {
+      hostAccountsApiSpotify,
+      redirectUriCallback,
+      apiSptifyClientId,
+      apiUserScope,
+    } = this.configService.get<{
+      hostAccountsApiSpotify: string;
+      redirectUriCallback: string;
+      apiSptifyClientId: string;
+      apiUserScope: string;
+    }>('spotifyApi');
 
     const queryParams = {
       response_type: 'code',
-      client_id: clientId,
+      client_id: apiSptifyClientId,
       scope: apiUserScope,
-      redirect_uri: redirectUri,
+      redirect_uri: redirectUriCallback,
       state: generateShortUUID(16),
       show_dialog: true,
     };
@@ -54,12 +54,12 @@ export class AuthController {
     this.logger.info('End auth/login route...');
 
     res.redirect(
-      `${hostApiSpotify}/authorize?${queryString.stringify(queryParams)}`,
+      `${hostAccountsApiSpotify}/authorize?${queryString.stringify(queryParams)}`,
     );
   }
 
   @Get('callback')
-  async authCallBack(@Query() authLogs: CreateAuthLogDto) {
+  async authCallBack(@Query() authLogs: CreateAuthLogDto): Promise<AuthLog> {
     this.logger.info('Starting auth/callback route...');
 
     if (!authLogs.state) {
@@ -87,15 +87,28 @@ export class AuthController {
   }
 
   @Post('token/refresh')
-  async refreshTokenById(@Query() querys: GetByIdDto) {
-    this.logger.info('Starting refresh Token by id...');
+  async refreshTokenById(@Query() querys: GetByIdDto): Promise<AuthLog> {
+    this.logger.info('Starting auth/token/refresh route...');
 
     const { id } = querys;
 
     const updateAuthLog = await this.authService.updateAuthToken(id);
 
-    this.logger.info('End refresh Token by id');
+    this.logger.info('End auth/token/refresh route');
 
     return updateAuthLog;
+  }
+
+  @Get('get-log')
+  getAuthLog(@Query() querys: GetByIdDto): Promise<AuthLog> {
+    this.logger.info('Starting auth/get-log route...');
+
+    const { id } = querys;
+
+    const authLog = this.authService.getAuthLog(id);
+
+    this.logger.info('End auth/get-log route');
+
+    return authLog;
   }
 }

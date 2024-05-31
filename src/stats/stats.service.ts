@@ -1,10 +1,11 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
-import { catchError, firstValueFrom } from 'rxjs';
+import { catchError, firstValueFrom, throwError } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { ISpotifyProfile } from 'src/common/interfaces/ISpotifyProfile';
-import { IErrorResponse } from 'src/common/interfaces/IErrorResponse';
+import { AxiosError } from 'axios';
+import { ErrorHandlerService } from 'src/common/exceptions/error-handler.service';
 
 @Injectable()
 export class StatsService {
@@ -13,6 +14,7 @@ export class StatsService {
   constructor(
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
+    private readonly errorhandlerService: ErrorHandlerService,
     @InjectPinoLogger(StatsService.name) private readonly logger: PinoLogger,
   ) {
     this.hostApiSpotify = this.configService.get<string>(
@@ -31,14 +33,11 @@ export class StatsService {
       this.httpService
         .get<ISpotifyProfile>(`${this.hostApiSpotify}/v1/me`, { headers })
         .pipe(
-          catchError((error) => {
-            const {
-              response: { data },
-            }: { response: { data: IErrorResponse } } = error;
+          catchError((error: AxiosError) => {
+            this.logger.error(error.response.data);
+            this.errorhandlerService.handleError(error);
 
-            this.logger.error(error);
-
-            throw new InternalServerErrorException(data.error_description);
+            return throwError(() => error);
           }),
         ),
     );
