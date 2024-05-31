@@ -1,20 +1,18 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { CreateAuthLogDto } from 'src/auth/dto/create-auth-log.dto';
+import { CreateAuthLogDto } from 'src/common/dto/create-auth-log.dto';
 import { AuthLog } from 'src/auth/auth-logs.schema';
 import { HttpService } from '@nestjs/axios';
-import { catchError, firstValueFrom } from 'rxjs';
+import { catchError, firstValueFrom, throwError } from 'rxjs';
 import * as qs from 'querystring';
 import { ConfigService } from '@nestjs/config';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { IResponseAccessToken } from 'src/common/interfaces/IResponseAccessToken';
-import { IErrorResponse } from 'src/common/interfaces/IErrorResponse';
-import { AxiosResponse } from 'axios';
+import { AxiosError, AxiosResponse } from 'axios';
+import { IRequestToken } from 'src/common/interfaces/IRequestAccessToken';
+import { IRequestRefreshToken } from 'src/common/interfaces/IRequestRefreshToken';
+import { ErrorHandlerService } from 'src/common/exceptions/error-handler.service';
 
 @Injectable()
 export class AuthService {
@@ -26,13 +24,13 @@ export class AuthService {
     @InjectModel('AuthLog') private readonly authLogModel: Model<AuthLog>,
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
+    private readonly errorHandlerService: ErrorHandlerService,
     @InjectPinoLogger(AuthService.name) private readonly logger: PinoLogger,
   ) {
     const { hostAccountsApiSpotify, redirectUriCallback } =
       this.configService.get<{
         hostAccountsApiSpotify: string;
         redirectUriCallback: string;
-        apiSptifyClientId: string;
       }>('spotifyApi');
 
     this.hostAccountsApiSpotify = hostAccountsApiSpotify;
@@ -49,14 +47,11 @@ export class AuthService {
           urlEncodedData,
         )
         .pipe(
-          catchError((error) => {
-            const {
-              response: { data },
-            }: { response: { data: IErrorResponse } } = error;
+          catchError((error: AxiosError) => {
+            this.logger.error(error.response.data);
+            this.errorHandlerService.handleError(error);
 
-            this.logger.error(error);
-
-            throw new InternalServerErrorException(data.error_description);
+            return throwError(() => error);
           }),
         ),
     );
@@ -73,11 +68,13 @@ export class AuthService {
   async createUserToken(authLog: AuthLog): Promise<IResponseAccessToken> {
     this.logger.info('Starting create user token...');
 
-    const urlEncodedData = qs.stringify({
+    const dataRequestToken: IRequestToken = {
       grant_type: 'authorization_code',
       code: authLog.code,
       redirect_uri: this.redirectUriCallback,
-    });
+    };
+
+    const urlEncodedData = qs.stringify(dataRequestToken);
 
     const { data } = await this.apiTokenRequest(urlEncodedData);
 
@@ -123,11 +120,13 @@ export class AuthService {
 
     const actualAuthLog = await this.getAuthLog(id);
 
-    const urlEncodedData = qs.stringify({
+    const dataRequestRefreshToken: IRequestRefreshToken = {
       grant_type: 'refresh_token',
       refresh_token: actualAuthLog.refreshToken,
       client_id: this.apiClientId,
-    });
+    };
+
+    const urlEncodedData = qs.stringify(dataRequestRefreshToken);
 
     const { data } = await this.apiTokenRequest(urlEncodedData);
 
