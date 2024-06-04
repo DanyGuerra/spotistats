@@ -3,7 +3,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateAuthLogDto } from 'src/common/dto/create-auth-log.dto';
 import { AuthLog } from 'src/auth/auth-logs.schema';
-import { HttpService } from '@nestjs/axios';
 import { catchError, firstValueFrom, throwError } from 'rxjs';
 import * as qs from 'querystring';
 import { ConfigService } from '@nestjs/config';
@@ -13,6 +12,7 @@ import { AxiosError, AxiosResponse } from 'axios';
 import { IRequestToken } from 'src/common/interfaces/IRequestAccessToken';
 import { IRequestRefreshToken } from 'src/common/interfaces/IRequestRefreshToken';
 import { ErrorHandlerService } from 'src/common/exceptions/error-handler.service';
+import { HttpCustomService } from 'src/common/CustomHttp/custom-http.service';
 
 @Injectable()
 export class AuthService {
@@ -22,7 +22,7 @@ export class AuthService {
 
   constructor(
     @InjectModel('AuthLog') private readonly authLogModel: Model<AuthLog>,
-    private readonly httpService: HttpService,
+    private readonly httpService: HttpCustomService,
     private readonly configService: ConfigService,
     private readonly errorHandlerService: ErrorHandlerService,
     @InjectPinoLogger(AuthService.name) private readonly logger: PinoLogger,
