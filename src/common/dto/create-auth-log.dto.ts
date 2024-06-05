@@ -7,6 +7,10 @@ export class CreateAuthLogDto {
 
   @IsString()
   @IsOptional()
+  readonly error?: string;
+
+  @IsString()
+  @IsOptional()
   readonly state?: string;
 
   @IsString()
