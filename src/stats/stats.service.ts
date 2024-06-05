@@ -11,6 +11,7 @@ import { IResponseTopArtists } from 'src/common/interfaces/IResponseTopArtists';
 import { urlReplace } from 'src/utils/utils';
 import { IResponseTopTracks } from 'src/common/interfaces/IResponseTopTracks';
 import { IResponseCurrentlyPlaying } from 'src/common/interfaces/IResponseCurrentlyPlaying';
+import { IResponseRecentlyPlayed } from 'src/common/interfaces/IResponseRecentlyPlayed';
 
 @Injectable()
 export class StatsService {
@@ -162,6 +163,56 @@ export class StatsService {
     );
 
     this.logger.info('End getTopTracks');
+
+    return data;
+  }
+
+  async getRecentlyPlayed(
+    accessToken: string,
+    params,
+    id,
+  ): Promise<IResponseRecentlyPlayed> {
+    this.logger.info('Starting getRecentlyPlayed...');
+
+    const headers = {
+      Authorization: `Bearer ${accessToken}`,
+    };
+
+    const querys = qs.stringify(params);
+
+    const { data } = await firstValueFrom(
+      this.httpService
+        .get<IResponseRecentlyPlayed>(
+          `${this.hostApiSpotify}/v1/me/player/recently-played?${querys}`,
+          {
+            headers,
+          },
+        )
+        .pipe(
+          catchError((error: AxiosError) => {
+            this.logger.error(error.response.data);
+            this.errorhandlerService.handleError(error);
+
+            return throwError(() => error);
+          }),
+        ),
+    );
+
+    data.href = urlReplace(
+      id,
+      data.href,
+      `${this.hostApiSpotify}/v1/me/player/recently-played`,
+      `${this.host}${this.apiContext}/stats/recently-played`,
+    );
+
+    data.next = urlReplace(
+      id,
+      data.next,
+      `${this.hostApiSpotify}/v1/me/player/recently-played`,
+      `${this.host}${this.apiContext}/stats/recently-played`,
+    );
+
+    this.logger.info('End getRecentlyPlayed');
 
     return data;
   }

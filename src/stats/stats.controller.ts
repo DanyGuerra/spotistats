@@ -6,6 +6,8 @@ import { StatsService } from './stats.service';
 import { ISpotifyProfile } from 'src/common/interfaces/ISpotifyProfile';
 import { GetTopArtistDto } from 'src/common/dto/get-top-artists.dto';
 import { Response } from 'express';
+import { GetRecentlyPlayedDto } from 'src/common/dto/get-recently-played.dto';
+import { IRecentlyPlayedParams } from 'src/common/interfaces/IRecentlyPlayedParams';
 
 @Controller('stats')
 export class StatsController {
@@ -70,6 +72,30 @@ export class StatsController {
     this.logger.info('End stats/top-artists route');
 
     return topArtists;
+  }
+
+  @Get('recently-played')
+  async getRecentlyPlayed(
+    @Query()
+    { id, limit = 50, before, after }: GetRecentlyPlayedDto,
+  ) {
+    this.logger.info('Starting stats/recently-played route...');
+
+    const params: IRecentlyPlayedParams = { limit };
+
+    if (before) params.before = before;
+    if (after) params.after = after;
+
+    const authLog = await this.authService.getAuthLog(id);
+    const recentlyPlayed = await this.statsService.getRecentlyPlayed(
+      authLog.accessToken,
+      params,
+      id,
+    );
+
+    this.logger.info('End stats/recently-played route');
+
+    return recentlyPlayed;
   }
 
   @Get('currently-playing')
