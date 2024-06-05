@@ -9,6 +9,8 @@ import { ErrorHandlerService } from 'src/common/exceptions/error-handler.service
 import { HttpCustomService } from 'src/common/CustomHttp/custom-http.service';
 import { IResponseTopArtists } from 'src/common/interfaces/IResponseTopArtists';
 import { urlReplace } from 'src/utils/utils';
+import { IResponseTopTracks } from 'src/common/interfaces/IResponseTopTracks';
+import { IResponseCurrentlyPlaying } from 'src/common/interfaces/IResponseCurrentlyPlaying';
 
 @Injectable()
 export class StatsService {
@@ -107,5 +109,90 @@ export class StatsService {
     this.logger.info('End getTopArtists');
 
     return data;
+  }
+
+  async getTopTracks(
+    accessToken: string,
+    params,
+    id,
+  ): Promise<IResponseTopTracks> {
+    this.logger.info('Starting getTopTracks...');
+
+    const headers = {
+      Authorization: `Bearer ${accessToken}`,
+    };
+
+    const querys = qs.stringify(params);
+
+    const { data } = await firstValueFrom(
+      this.httpService
+        .get<IResponseTopTracks>(
+          `${this.hostApiSpotify}/v1/me/top/tracks?${querys}`,
+          {
+            headers,
+          },
+        )
+        .pipe(
+          catchError((error: AxiosError) => {
+            this.logger.error(error.response.data);
+            this.errorhandlerService.handleError(error);
+
+            return throwError(() => error);
+          }),
+        ),
+    );
+
+    data.href = urlReplace(
+      id,
+      data.href,
+      `${this.hostApiSpotify}/v1/me/top/tracks`,
+      `${this.host}${this.apiContext}/stats/top-tracks`,
+    );
+    data.previous = urlReplace(
+      id,
+      data.previous,
+      `${this.hostApiSpotify}/v1/me/top/tracks`,
+      `${this.host}${this.apiContext}/stats/top-tracks`,
+    );
+    data.next = urlReplace(
+      id,
+      data.next,
+      `${this.hostApiSpotify}/v1/me/top/tracks`,
+      `${this.host}${this.apiContext}/stats/top-tracks`,
+    );
+
+    this.logger.info('End getTopTracks');
+
+    return data;
+  }
+
+  async getCurrentlyPlaying(accessToken: string) {
+    this.logger.info('Starting getCurrentlyPlaying...');
+
+    const headers = {
+      Authorization: `Bearer ${accessToken}`,
+    };
+
+    const { data, status, statusText } = await firstValueFrom(
+      this.httpService
+        .get<IResponseCurrentlyPlaying>(
+          `${this.hostApiSpotify}/v1/me/player/currently-playing`,
+          {
+            headers,
+          },
+        )
+        .pipe(
+          catchError((error: AxiosError) => {
+            this.logger.error(error.response.data);
+            this.errorhandlerService.handleError(error);
+
+            return throwError(() => error);
+          }),
+        ),
+    );
+
+    this.logger.info('End getCurrentlyPlaying');
+
+    return { data, status, statusText };
   }
 }

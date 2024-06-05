@@ -1,10 +1,11 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Query, Res } from '@nestjs/common';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { AuthService } from 'src/auth/auth.service';
 import { GetByIdDto } from 'src/common/dto/get-by-id.dto';
 import { StatsService } from './stats.service';
 import { ISpotifyProfile } from 'src/common/interfaces/ISpotifyProfile';
 import { GetTopArtistDto } from 'src/common/dto/get-top-artists.dto';
+import { Response } from 'express';
 
 @Controller('stats')
 export class StatsController {
@@ -16,7 +17,7 @@ export class StatsController {
 
   @Get('me')
   async getUserInfo(@Query() querys: GetByIdDto): Promise<ISpotifyProfile> {
-    this.logger.info('Starting get user info...');
+    this.logger.info('Starting stats/me route...');
 
     const { id } = querys;
     const authLog = await this.authService.getAuthLog(id);
@@ -24,7 +25,7 @@ export class StatsController {
       authLog.accessToken,
     );
 
-    this.logger.info('End get user info');
+    this.logger.info('End stats/me route');
 
     return userData;
   }
@@ -34,7 +35,7 @@ export class StatsController {
     @Query()
     { id, limit = 50, time_range = 'long_term', offset }: GetTopArtistDto,
   ) {
-    this.logger.info('Starting my top artists...');
+    this.logger.info('Starting stats/top-artists route...');
 
     const params = { limit, time_range, offset };
 
@@ -45,8 +46,50 @@ export class StatsController {
       id,
     );
 
-    this.logger.info('End my top artists');
+    this.logger.info('End stats/top-artists route');
 
     return topArtists;
+  }
+
+  @Get('top-tracks')
+  async myTopTracks(
+    @Query()
+    { id, limit = 50, time_range = 'long_term', offset }: GetTopArtistDto,
+  ) {
+    this.logger.info('Starting stats/top-artists route...');
+
+    const params = { limit, time_range, offset };
+
+    const authLog = await this.authService.getAuthLog(id);
+    const topArtists = await this.statsService.getTopTracks(
+      authLog.accessToken,
+      params,
+      id,
+    );
+
+    this.logger.info('End stats/top-artists route');
+
+    return topArtists;
+  }
+
+  @Get('currently-playing')
+  async getCurrentlyPlaying(
+    @Query()
+    { id }: GetByIdDto,
+    @Res() res: Response,
+  ) {
+    this.logger.info('Starting stats/currently-playing route...');
+
+    const authLog = await this.authService.getAuthLog(id);
+    const { data, status, statusText } =
+      await this.statsService.getCurrentlyPlaying(authLog.accessToken);
+
+    this.logger.info('End stats/currently-playing route');
+
+    return res.status(status).json({
+      statusCode: status,
+      message: statusText,
+      data,
+    });
   }
 }
