@@ -59,14 +59,18 @@ export class AuthController {
   }
 
   @Get('callback')
-  async authCallBack(@Query() authLogs: CreateAuthLogDto): Promise<AuthLog> {
+  async authCallBack(@Query() querys: CreateAuthLogDto): Promise<AuthLog> {
     this.logger.info('Starting auth/callback route...');
 
-    if (!authLogs.state) {
+    if (querys.error) {
+      throw new BadRequestException(querys.error);
+    }
+
+    if (!querys.state) {
       throw new BadRequestException('state_mismatch');
     }
 
-    const newLog = await this.authService.createNewLog(authLogs);
+    const newLog = await this.authService.createNewLog(querys);
     const token = await this.authService.createUserToken(newLog);
     const usernameId = await this.statsService.getUserProfile(
       token.access_token,
