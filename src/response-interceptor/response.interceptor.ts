@@ -8,7 +8,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Reflector } from '@nestjs/core';
 import { Response } from 'express';
-import { ISuccessResponse } from '../common/interfaces/ISuccessResponse';
+import { IDefaultResponse } from '../common/interfaces/IDefaultResponse';
 
 @Injectable()
 export class ResponseInterceptor implements NestInterceptor {
@@ -30,7 +30,7 @@ export class ResponseInterceptor implements NestInterceptor {
 
     return next.handle().pipe(
       map((data) => {
-        const responseObject: ISuccessResponse = {
+        const responseObject: IDefaultResponse = {
           statusCode: response.statusCode,
           message: messageResponse || 'success',
         };
