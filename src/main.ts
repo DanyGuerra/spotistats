@@ -13,7 +13,11 @@ async function bootstrap() {
 
   const app = await NestFactory.create(AppModule);
   app.useLogger(app.get(Logger));
-  app.enableCors();
+  app.enableCors({
+    origin: 'http://localhost:4200',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  });
 
   const configService = app.get(ConfigService);
   const port = configService.get<string>('port');
