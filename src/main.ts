@@ -6,22 +6,21 @@ import * as dotenv from 'dotenv';
 import { ConfigService } from '@nestjs/config';
 import { Logger } from 'nestjs-pino';
 
-Reflector;
-
 async function bootstrap() {
   dotenv.config();
 
   const app = await NestFactory.create(AppModule);
-  app.useLogger(app.get(Logger));
-  app.enableCors({
-    origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  });
-
   const configService = app.get(ConfigService);
   const port = configService.get<string>('port');
   const apiContext = configService.get<string>('apiContext');
+  const hostFrontEnd = configService.get<string>('hostFrontEnd');
+
+  app.useLogger(app.get(Logger));
+  app.enableCors({
+    origin: [hostFrontEnd],
+    methods: ['GET', 'POST'],
+    credentials: true,
+  });
 
   app.useGlobalInterceptors(new ResponseInterceptor(new Reflector()));
   app.useGlobalPipes(

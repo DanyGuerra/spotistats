@@ -8,7 +8,6 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateAuthLogDto } from 'src/common/dto/create-auth-log.dto';
-import { Response } from 'express';
 import * as queryString from 'querystring';
 import { ConfigService } from '@nestjs/config';
 import { generateShortUUID } from 'src/utils/uuid-utils';
@@ -27,7 +26,7 @@ export class AuthController {
   ) {}
 
   @Get('login')
-  login(@Res() res: Response) {
+  login() {
     this.logger.info('Starting auth/login route...');
 
     const {
@@ -53,9 +52,9 @@ export class AuthController {
 
     this.logger.info('End auth/login route...');
 
-    res.redirect(
-      `${hostAccountsApiSpotify}/authorize?${queryString.stringify(queryParams)}`,
-    );
+    return {
+      url: `${hostAccountsApiSpotify}/authorize?${queryString.stringify(queryParams)}`,
+    };
   }
 
   @Get('callback')
