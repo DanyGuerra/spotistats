@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Controller,
   Get,
+  HttpStatus,
   Post,
   Query,
   Res,
@@ -15,6 +16,7 @@ import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { StatsService } from 'src/stats/stats.service';
 import { GetByIdDto } from '../common/dto/get-by-id.dto';
 import { AuthLog } from './auth-logs.schema';
+import { Response } from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -58,8 +60,10 @@ export class AuthController {
   }
 
   @Get('callback')
-  async authCallBack(@Query() querys: CreateAuthLogDto): Promise<AuthLog> {
+  async authCallBack(@Query() querys: CreateAuthLogDto, @Res() res: Response) {
     this.logger.info('Starting auth/callback route...');
+
+    const hostFrontEnd = this.configService.get<string>('hostFrontEnd');
 
     if (querys.error) {
       throw new BadRequestException(querys.error);
@@ -86,7 +90,10 @@ export class AuthController {
 
     this.logger.info('End auth/callback route');
 
-    return updateLog;
+    res.redirect(
+      HttpStatus.MOVED_PERMANENTLY,
+      `${hostFrontEnd}/dashboard/${updateLog.usernameId}`,
+    );
   }
 
   @Post('token/refresh')
