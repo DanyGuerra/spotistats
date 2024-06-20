@@ -92,7 +92,7 @@ export class AuthController {
 
     res.redirect(
       HttpStatus.MOVED_PERMANENTLY,
-      `${hostFrontEnd}/dashboard/${updateLog.usernameId}`,
+      `${hostFrontEnd}/${updateLog.usernameId}`,
     );
   }
 
