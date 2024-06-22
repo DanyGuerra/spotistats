@@ -115,6 +115,24 @@ export class AuthService {
     return authLog;
   }
 
+  async getAuthLogByUserId(userId: string): Promise<AuthLog> {
+    this.logger.info('Starting get AuthLogByUserId...');
+
+    const authLog = await this.authLogModel
+      .findOne<AuthLog>({ usernameId: userId })
+      .sort({ createdAt: -1 })
+      .exec();
+
+    if (!authLog) {
+      this.logger.error('Log not found');
+      throw new NotFoundException('Log not found');
+    }
+
+    this.logger.info('End get AuthLogByUserId...');
+
+    return authLog;
+  }
+
   async updateAuthToken(id: string): Promise<AuthLog> {
     this.logger.info('Starting update auth token...');
 

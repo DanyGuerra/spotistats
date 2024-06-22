@@ -121,4 +121,15 @@ export class AuthController {
 
     return authLog;
   }
+
+  @Get('get-log-userid')
+  getAuthLogByUserId(@Query('userid') userId: string): Promise<AuthLog> {
+    this.logger.info('Starting auth/get-log-userid route...');
+
+    const authLog = this.authService.getAuthLogByUserId(userId);
+
+    this.logger.info('End auth/get-log-userId route');
+
+    return authLog;
+  }
 }
