@@ -1,12 +1,4 @@
-import {
-  BadRequestException,
-  Controller,
-  Get,
-  HttpStatus,
-  Post,
-  Query,
-  Res,
-} from '@nestjs/common';
+import { Controller, Get, HttpStatus, Post, Query, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateAuthLogDto } from 'src/common/dto/create-auth-log.dto';
 import * as queryString from 'querystring';
@@ -66,11 +58,17 @@ export class AuthController {
     const hostFrontEnd = this.configService.get<string>('hostFrontEnd');
 
     if (querys.error) {
-      throw new BadRequestException(querys.error);
+      res.redirect(
+        HttpStatus.MOVED_PERMANENTLY,
+        `${hostFrontEnd}/login-error?${querys.error}`,
+      );
     }
 
     if (!querys.state) {
-      throw new BadRequestException('state_mismatch');
+      res.redirect(
+        HttpStatus.MOVED_PERMANENTLY,
+        `${hostFrontEnd}/login-error?state_mismatch`,
+      );
     }
 
     const newLog = await this.authService.createNewLog(querys);
