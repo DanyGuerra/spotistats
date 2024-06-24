@@ -60,14 +60,14 @@ export class AuthController {
     if (querys.error) {
       res.redirect(
         HttpStatus.MOVED_PERMANENTLY,
-        `${hostFrontEnd}/login-error?${querys.error}`,
+        `${hostFrontEnd}/login-error?info=${querys.error}`,
       );
     }
 
     if (!querys.state) {
       res.redirect(
         HttpStatus.MOVED_PERMANENTLY,
-        `${hostFrontEnd}/login-error?state_mismatch`,
+        `${hostFrontEnd}/login-error?info=state_mismatch`,
       );
     }
 
