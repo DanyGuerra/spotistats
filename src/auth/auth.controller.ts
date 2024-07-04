@@ -1,4 +1,12 @@
-import { Controller, Get, HttpStatus, Post, Query, Res } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpStatus,
+  Post,
+  Query,
+  Res,
+  HttpCode,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateAuthLogDto } from 'src/common/dto/create-auth-log.dto';
 import * as queryString from 'querystring';
@@ -95,6 +103,7 @@ export class AuthController {
   }
 
   @Post('token/refresh')
+  @HttpCode(200)
   async refreshTokenById(@Query() querys: GetByIdDto): Promise<AuthLog> {
     this.logger.info('Starting auth/token/refresh route...');
 
