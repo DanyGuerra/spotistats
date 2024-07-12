@@ -107,6 +107,11 @@ export class StatsService {
       `${this.host}${this.apiContext}/stats/top-artists`,
     );
 
+    data.items = data.items.map((item, index) => {
+      item.rank_number = data.offset + index + 1;
+      return item;
+    });
+
     this.logger.info('End getTopArtists');
 
     return data;
@@ -161,6 +166,11 @@ export class StatsService {
       `${this.hostApiSpotify}/v1/me/top/tracks`,
       `${this.host}${this.apiContext}/stats/top-tracks`,
     );
+
+    data.items = data.items.map((item, index) => {
+      item.rank_number = data.offset + index + 1;
+      return item;
+    });
 
     this.logger.info('End getTopTracks');
 

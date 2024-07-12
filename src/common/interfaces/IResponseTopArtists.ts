@@ -19,6 +19,7 @@ export interface Item {
   popularity: number;
   type: string;
   uri: string;
+  rank_number: number;
 }
 
 export interface ExternalUrls {

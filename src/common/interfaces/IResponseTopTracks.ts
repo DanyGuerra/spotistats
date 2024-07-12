@@ -26,6 +26,7 @@ export interface Item {
   track_number: number;
   type: string;
   uri: string;
+  rank_number: number;
 }
 
 export interface Album {
