@@ -161,4 +161,21 @@ export class AuthService {
 
     return authLog;
   }
+
+  async deleteAuthLog(id: string): Promise<AuthLog> {
+    this.logger.info('Starting delete auth log...');
+
+    const authLog = await this.authLogModel
+      .findByIdAndDelete<AuthLog>(id)
+      .exec();
+
+    if (!authLog) {
+      this.logger.error('Log not found');
+      throw new NotFoundException('Log not found');
+    }
+
+    this.logger.info('End delete authlog');
+
+    return authLog;
+  }
 }

@@ -6,6 +6,7 @@ import {
   Query,
   Res,
   HttpCode,
+  Delete,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateAuthLogDto } from 'src/common/dto/create-auth-log.dto';
@@ -136,6 +137,19 @@ export class AuthController {
     const authLog = this.authService.getAuthLogByUserId(userId);
 
     this.logger.info('End auth/get-log-userId route');
+
+    return authLog;
+  }
+
+  @Delete('logout')
+  logout(@Query() querys: GetByIdDto): Promise<AuthLog> {
+    this.logger.info('Starting auth/logout route...');
+
+    const { id } = querys;
+
+    const authLog = this.authService.deleteAuthLog(id);
+
+    this.logger.info('End auth/logout route');
 
     return authLog;
   }
