@@ -18,7 +18,7 @@ async function bootstrap() {
   app.useLogger(app.get(Logger));
   app.enableCors({
     origin: [hostFrontEnd],
-    methods: ['GET', 'POST'],
+    methods: ['GET', 'POST', 'DELETE'],
     credentials: true,
   });
 
