@@ -1,4 +1,4 @@
-export interface SuccessResponse {
+export interface IDefaultResponse {
   statusCode: number;
   message: string;
   data?: any;

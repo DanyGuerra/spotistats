@@ -1,80 +1,93 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { CreateAuthLogDto } from 'src/auth/create-auth-log.dto';
+import { CreateAuthLogDto } from 'src/common/dto/create-auth-log.dto';
 import { AuthLog } from 'src/auth/auth-logs.schema';
-import { HttpService } from '@nestjs/axios';
-import { catchError, firstValueFrom } from 'rxjs';
+import { catchError, firstValueFrom, throwError } from 'rxjs';
 import * as qs from 'querystring';
 import { ConfigService } from '@nestjs/config';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
+import { IResponseAccessToken } from 'src/common/interfaces/IResponseAccessToken';
+import { AxiosError, AxiosResponse } from 'axios';
+import { IRequestToken } from 'src/common/interfaces/IRequestAccessToken';
+import { IRequestRefreshToken } from 'src/common/interfaces/IRequestRefreshToken';
+import { ErrorHandlerService } from 'src/common/exceptions/error-handler.service';
+import { HttpCustomService } from 'src/common/CustomHttp/custom-http.service';
 
 @Injectable()
 export class AuthService {
   private hostAccountsApiSpotify: string;
   private redirectUriCallback: string;
+  private apiClientId: string;
 
   constructor(
     @InjectModel('AuthLog') private readonly authLogModel: Model<AuthLog>,
-    private readonly httpService: HttpService,
+    private readonly httpService: HttpCustomService,
     private readonly configService: ConfigService,
+    private readonly errorHandlerService: ErrorHandlerService,
     @InjectPinoLogger(AuthService.name) private readonly logger: PinoLogger,
   ) {
-    this.hostAccountsApiSpotify = this.configService.get<string>(
-      'hostAccountsApiSpotify',
-    );
-    this.redirectUriCallback = this.configService.get<string>(
-      'redirectUriCallback',
+    const { hostAccountsApiSpotify, redirectUriCallback } =
+      this.configService.get<{
+        hostAccountsApiSpotify: string;
+        redirectUriCallback: string;
+      }>('spotifyApi');
+
+    this.hostAccountsApiSpotify = hostAccountsApiSpotify;
+    this.redirectUriCallback = redirectUriCallback;
+  }
+
+  async apiTokenRequest(
+    urlEncodedData: string,
+  ): Promise<AxiosResponse<IResponseAccessToken>> {
+    return firstValueFrom(
+      this.httpService
+        .post<IResponseAccessToken>(
+          `${this.hostAccountsApiSpotify}/api/token`,
+          urlEncodedData,
+        )
+        .pipe(
+          catchError((error: AxiosError) => {
+            this.logger.error(error.response.data);
+            this.errorHandlerService.handleError(error);
+
+            return throwError(() => error);
+          }),
+        ),
     );
   }
 
   createNewLog(createAuthLogDto: CreateAuthLogDto): Promise<AuthLog> {
     this.logger.info('Starting create new log...');
-    const createdCar = new this.authLogModel(createAuthLogDto);
-    const savedCar = createdCar.save();
-    this.logger.info('Ending create new log');
-    return savedCar;
+    const createdAuth = new this.authLogModel(createAuthLogDto);
+    const savedAuth = createdAuth.save();
+    this.logger.info('End create new log');
+    return savedAuth;
   }
 
-  async createUserToken(authLog: AuthLog): Promise<AuthLog> {
+  async createUserToken(authLog: AuthLog): Promise<IResponseAccessToken> {
     this.logger.info('Starting create user token...');
 
-    const urlEncodedData = qs.stringify({
+    const dataRequestToken: IRequestToken = {
       grant_type: 'authorization_code',
       code: authLog.code,
       redirect_uri: this.redirectUriCallback,
-    });
+    };
 
-    const { data } = await firstValueFrom(
-      this.httpService
-        .post(`${this.hostAccountsApiSpotify}/api/token`, urlEncodedData)
-        .pipe(
-          catchError((error) => {
-            const {
-              response: { data },
-            } = error;
+    const urlEncodedData = qs.stringify(dataRequestToken);
 
-            this.logger.error(error);
+    const { data } = await this.apiTokenRequest(urlEncodedData);
 
-            throw new InternalServerErrorException(data.error_description);
-          }),
-        ),
-    );
-
-    this.logger.info('Ending create user token...');
+    this.logger.info('End create user token...');
 
     return data;
   }
 
-  async updateLog(id: string, authLog: CreateAuthLogDto) {
+  async updateLog(id: string, authLog: CreateAuthLogDto): Promise<AuthLog> {
     this.logger.info('Starting update log...');
 
     const updateLog = await this.authLogModel
-      .findByIdAndUpdate(id, authLog, { new: true })
+      .findByIdAndUpdate<AuthLog>(id, authLog, { new: true })
       .exec();
 
     if (!updateLog) {
@@ -85,5 +98,84 @@ export class AuthService {
     this.logger.info('Ending update log...');
 
     return updateLog;
+  }
+
+  async getAuthLog(id: string): Promise<AuthLog> {
+    this.logger.info('Starting get AuthLog...');
+
+    const authLog = await this.authLogModel.findById<AuthLog>(id).exec();
+
+    if (!authLog) {
+      this.logger.error('Log not found');
+      throw new NotFoundException('Log not found');
+    }
+
+    this.logger.info('End get AuthLog...');
+
+    return authLog;
+  }
+
+  async getAuthLogByUserId(userId: string): Promise<AuthLog> {
+    this.logger.info('Starting get AuthLogByUserId...');
+
+    const authLog = await this.authLogModel
+      .findOne<AuthLog>({ usernameId: userId })
+      .sort({ createdAt: -1 })
+      .exec();
+
+    if (!authLog) {
+      this.logger.error('Log not found');
+      throw new NotFoundException('Log not found');
+    }
+
+    this.logger.info('End get AuthLogByUserId...');
+
+    return authLog;
+  }
+
+  async updateAuthToken(id: string): Promise<AuthLog> {
+    this.logger.info('Starting update auth token...');
+
+    const actualAuthLog = await this.getAuthLog(id);
+
+    const dataRequestRefreshToken: IRequestRefreshToken = {
+      grant_type: 'refresh_token',
+      refresh_token: actualAuthLog.refreshToken,
+      client_id: this.apiClientId,
+    };
+
+    const urlEncodedData = qs.stringify(dataRequestRefreshToken);
+
+    const { data } = await this.apiTokenRequest(urlEncodedData);
+
+    const authLog = await this.authLogModel
+      .findByIdAndUpdate<AuthLog>(id, { accessToken: data.access_token })
+      .exec();
+
+    if (!authLog) {
+      this.logger.error('Log not found');
+      throw new NotFoundException('Log not found');
+    }
+
+    this.logger.info('End update auth token');
+
+    return authLog;
+  }
+
+  async deleteAuthLog(id: string): Promise<AuthLog> {
+    this.logger.info('Starting delete auth log...');
+
+    const authLog = await this.authLogModel
+      .findByIdAndDelete<AuthLog>(id)
+      .exec();
+
+    if (!authLog) {
+      this.logger.error('Log not found');
+      throw new NotFoundException('Log not found');
+    }
+
+    this.logger.info('End delete authlog');
+
+    return authLog;
   }
 }

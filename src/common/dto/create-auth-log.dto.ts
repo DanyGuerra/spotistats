@@ -7,6 +7,10 @@ export class CreateAuthLogDto {
 
   @IsString()
   @IsOptional()
+  readonly error?: string;
+
+  @IsString()
+  @IsOptional()
   readonly state?: string;
 
   @IsString()
@@ -15,9 +19,13 @@ export class CreateAuthLogDto {
 
   @IsString()
   @IsOptional()
-  readonly access_token?: string;
+  readonly displayName?: string;
 
   @IsString()
   @IsOptional()
-  readonly refresh_token?: string;
+  readonly accessToken?: string;
+
+  @IsString()
+  @IsOptional()
+  readonly refreshToken?: string;
 }

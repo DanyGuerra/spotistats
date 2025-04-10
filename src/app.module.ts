@@ -8,6 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import { HttpConfigModule } from './http-config.module';
 import { LoggerModule } from 'nestjs-pino';
 import { StatsModule } from './stats/stats.module';
+import { HttpCustomService } from './common/CustomHttp/custom-http.service';
 
 @Module({
   imports: [
@@ -32,10 +33,6 @@ import { StatsModule } from './stats/stats.module';
             : undefined,
 
         autoLogging: false,
-        serializers: {
-          req: () => undefined,
-          res: () => undefined,
-        },
       },
     }),
     AuthModule,
@@ -44,7 +41,7 @@ import { StatsModule } from './stats/stats.module';
     StatsModule,
   ],
   controllers: [],
-  providers: [],
-  exports: [],
+  providers: [HttpCustomService],
+  exports: [HttpCustomService],
 })
 export class AppModule {}

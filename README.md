@@ -29,13 +29,15 @@ Stotify API for spotify statistics
 ## Envioronment variables
 
 ```bash
-NODE_ENV = (envioronment)
 PORT = (application port)
+NODE_ENV = (envioronment)
+HOST = (actual host)
 API_CONTEXT = (prefix api context)
 MONGODB_URI = (uri MongoDB)
 API_SPOTIFY_CLIENT_ID = (client Spotify API)
 API_SPOTIFY_CLIENT_SECRET = (secret Spotify API)
 HOST_ACCOUNTS_API_SPOTIFY = (host Spotify API accounts)
+HOST_API_SPOTIFY = (host Spotify API)
 REDIRECT_URI_CALLBACK = (redirect uri This app hosted)
 API_SPORIFY_USER_SCOPE = (user permissions)
 ```
