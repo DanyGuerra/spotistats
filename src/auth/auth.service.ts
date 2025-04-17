@@ -27,14 +27,16 @@ export class AuthService {
     private readonly errorHandlerService: ErrorHandlerService,
     @InjectPinoLogger(AuthService.name) private readonly logger: PinoLogger,
   ) {
-    const { hostAccountsApiSpotify, redirectUriCallback } =
+    const { hostAccountsApiSpotify, redirectUriCallback, apiSptifyClientId } =
       this.configService.get<{
         hostAccountsApiSpotify: string;
         redirectUriCallback: string;
+        apiSptifyClientId: string;
       }>('spotifyApi');
 
     this.hostAccountsApiSpotify = hostAccountsApiSpotify;
     this.redirectUriCallback = redirectUriCallback;
+    this.apiClientId = apiSptifyClientId;
   }
 
   async apiTokenRequest(
