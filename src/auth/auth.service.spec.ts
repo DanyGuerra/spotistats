@@ -6,33 +6,19 @@ import { HttpCustomService } from 'src/common/CustomHttp/custom-http.service';
 import { ConfigService } from '@nestjs/config';
 import { ErrorHandlerService } from 'src/common/exceptions/error-handler.service';
 import { getLoggerToken } from 'nestjs-pino';
-
-const mockAuthLogModel = {
-  save: jest.fn(),
-  findById: jest.fn(),
-  findByIdAndUpdate: jest.fn(),
-  findByIdAndDelete: jest.fn(),
-  findOne: jest.fn(),
-};
-
-const mockHttpCustomService = {
-  post: jest
-    .fn()
-    .mockResolvedValue({ data: { access_token: 'mock-access-token' } }),
-};
-
-const mockConfigService = {
-  get: jest.fn((key: string) => {
-    if (key === 'spotifyApi') {
-      return {
-        hostAccountsApiSpotify: 'https://mock-api.spotify.com',
-        redirectUriCallback: 'https://mock-callback.com',
-        apiSptifyClientId: '123abc',
-      };
-    }
-    return null;
-  }),
-};
+import { of, throwError } from 'rxjs';
+import { AxiosError } from 'axios';
+import {
+  mockAccessTokenResponse,
+  mockHostApiSpotify,
+  mockUrlEncodedData,
+  mockAccessTokenError,
+} from '../__mocks__/mock-api-responses';
+import { mockAuthLogModel } from 'src/__mocks__/mock-models';
+import {
+  mockConfigService,
+  mockHttpCustomService,
+} from 'src/__mocks__/mock-services';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -68,5 +54,37 @@ describe('AuthService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+
+  it('should return access token response on success', async () => {
+    mockHttpCustomService.post.mockReturnValue(of(mockAccessTokenResponse));
+
+    const result = await service.apiTokenRequest(mockUrlEncodedData);
+
+    expect(result).toEqual(mockAccessTokenResponse);
+    expect(mockHttpCustomService.post).toHaveBeenCalledWith(
+      mockHostApiSpotify,
+      mockUrlEncodedData,
+    );
+  });
+
+  it('should throw an error when the request fails', async () => {
+    const mockAxiosError = {
+      isAxiosError: true,
+      response: {
+        ...mockAccessTokenError,
+      },
+    } as AxiosError;
+
+    mockHttpCustomService.post.mockReturnValue(
+      throwError(() => mockAxiosError),
+    );
+
+    await expect(service.apiTokenRequest(mockUrlEncodedData)).rejects.toThrow();
+
+    expect(mockHttpCustomService.post).toHaveBeenCalledWith(
+      mockHostApiSpotify,
+      mockUrlEncodedData,
+    );
   });
 });
