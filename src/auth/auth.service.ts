@@ -59,7 +59,7 @@ export class AuthService {
     );
   }
 
-  createNewLog(createAuthLogDto: CreateAuthLogDto): Promise<AuthLog> {
+  async createNewLog(createAuthLogDto: CreateAuthLogDto): Promise<AuthLog> {
     this.logger.info('Starting create new log...');
     const createdAuth = new this.authLogModel(createAuthLogDto);
     const savedAuth = createdAuth.save();

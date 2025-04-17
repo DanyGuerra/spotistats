@@ -14,11 +14,15 @@ import {
   mockUrlEncodedData,
   mockAccessTokenError,
 } from '../__mocks__/mock-api-responses';
-import { mockAuthLogModel } from 'src/__mocks__/mock-models';
 import {
   mockConfigService,
   mockHttpCustomService,
 } from 'src/__mocks__/mock-services';
+import {
+  mockAuthLogModel,
+  mockCreateAuthLogDto,
+  mockSavedLog,
+} from 'src/__mocks__/mock-models';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -86,5 +90,11 @@ describe('AuthService', () => {
       mockHostApiSpotify,
       mockUrlEncodedData,
     );
+  });
+
+  it('should save new Log Auth', async () => {
+    const result = await service.createNewLog(mockCreateAuthLogDto);
+    expect(mockAuthLogModel).toHaveBeenCalledWith(mockCreateAuthLogDto);
+    expect(result).toEqual(mockSavedLog);
   });
 });
