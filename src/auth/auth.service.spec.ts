@@ -13,7 +13,11 @@ import {
   mockHostApiSpotify,
   mockUrlEncodedData,
   mockAccessTokenError,
-} from '../__mocks__/mock-api-responses';
+  mockResponseData,
+  mockAuthLog,
+  mockRequestToken,
+  mockUriCallback,
+} from './__mocks__/mock-api-responses';
 import {
   mockConfigService,
   mockHttpCustomService,
@@ -23,6 +27,7 @@ import {
   mockCreateAuthLogDto,
   mockSavedLog,
 } from 'src/__mocks__/mock-models';
+import * as qs from 'qs';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -72,7 +77,7 @@ describe('AuthService', () => {
     );
   });
 
-  it('should throw an error when the request fails', async () => {
+  it('should throw an error token response error', async () => {
     const mockAxiosError = {
       isAxiosError: true,
       response: {
@@ -96,5 +101,20 @@ describe('AuthService', () => {
     const result = await service.createNewLog(mockCreateAuthLogDto);
     expect(mockAuthLogModel).toHaveBeenCalledWith(mockCreateAuthLogDto);
     expect(result).toEqual(mockSavedLog);
+  });
+
+  it('should create a user token and return the data', async () => {
+    const apiTokenRequestMock = jest
+      .spyOn(service as any, 'apiTokenRequest')
+      .mockResolvedValue({ data: mockResponseData });
+
+    (service as any).redirectUriCallback = mockUriCallback;
+
+    const result = await service.createUserToken(mockAuthLog);
+
+    expect(apiTokenRequestMock).toHaveBeenCalledWith(
+      qs.stringify(mockRequestToken),
+    );
+    expect(result).toEqual(mockResponseData);
   });
 });
