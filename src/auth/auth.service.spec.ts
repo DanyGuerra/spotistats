@@ -17,17 +17,23 @@ import {
   mockAuthLog,
   mockRequestToken,
   mockUriCallback,
+  mockUserId,
 } from './__mocks__/mock-api-responses';
 import {
   mockConfigService,
   mockHttpCustomService,
 } from 'src/__mocks__/mock-services';
 import {
+  mockAuthId,
+  idNotFound,
   mockAuthLogModel,
   mockCreateAuthLogDto,
   mockSavedLog,
+  updatedLog,
+  mockReturnValueFindOne,
 } from 'src/__mocks__/mock-models';
 import * as qs from 'qs';
+import { NotFoundException } from '@nestjs/common';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -116,5 +122,84 @@ describe('AuthService', () => {
       qs.stringify(mockRequestToken),
     );
     expect(result).toEqual(mockResponseData);
+  });
+
+  it('should update the auth log successfully', async () => {
+    mockAuthLogModel.findByIdAndUpdate.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(updatedLog),
+    });
+
+    const result = await service.updateLog(mockAuthId, mockCreateAuthLogDto);
+
+    expect(mockAuthLogModel.findByIdAndUpdate).toHaveBeenCalledWith(
+      mockAuthId,
+      mockCreateAuthLogDto,
+      { new: true },
+    );
+    expect(result).toEqual(updatedLog);
+  });
+
+  it('should throw NotFoundException at findByIdAndUpdate', async () => {
+    mockAuthLogModel.findByIdAndUpdate.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(null),
+    });
+
+    await expect(
+      service.updateLog(idNotFound, mockCreateAuthLogDto),
+    ).rejects.toThrow(NotFoundException);
+
+    expect(mockAuthLogModel.findByIdAndUpdate).toHaveBeenCalledWith(
+      idNotFound,
+      mockCreateAuthLogDto,
+      { new: true },
+    );
+  });
+
+  it('should get the auth log successfully', async () => {
+    mockAuthLogModel.findById.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(mockAuthLog),
+    });
+
+    const result = await service.getAuthLog(mockAuthId);
+
+    expect(mockAuthLogModel.findById).toHaveBeenCalledWith(mockAuthId);
+    expect(result).toEqual(mockAuthLog);
+  });
+
+  it('should throw NotFoundException at getAuthLog', async () => {
+    mockAuthLogModel.findById.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(null),
+    });
+
+    await expect(service.getAuthLog(idNotFound)).rejects.toThrow(
+      NotFoundException,
+    );
+
+    expect(mockAuthLogModel.findById).toHaveBeenCalledWith(idNotFound);
+  });
+
+  it('should get auth log by userId', async () => {
+    mockAuthLogModel.findOne.mockReturnValue(
+      mockReturnValueFindOne(mockAuthLog),
+    );
+
+    const result = await service.getAuthLogByUserId(mockUserId);
+
+    expect(mockAuthLogModel.findOne).toHaveBeenCalledWith({
+      usernameId: mockUserId,
+    });
+    expect(result).toEqual(mockAuthLog);
+  });
+
+  it('should throw NotFoundException at getAuthLog by user id', async () => {
+    mockAuthLogModel.findOne.mockReturnValue(mockReturnValueFindOne(null));
+
+    await expect(service.getAuthLogByUserId(idNotFound)).rejects.toThrow(
+      NotFoundException,
+    );
+
+    expect(mockAuthLogModel.findOne).toHaveBeenCalledWith({
+      usernameId: idNotFound,
+    });
   });
 });

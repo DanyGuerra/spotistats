@@ -23,6 +23,8 @@ export const mockHostApiSpotify = 'https://mock-api.spotify.com/api/token';
 
 export const mockAuthLog: AuthLog = { code: '123abc' } as any;
 
+export const mockUserId = 'userId';
+
 export const mockRequestToken = {
   grant_type: 'authorization_code',
   code: '123abc',
