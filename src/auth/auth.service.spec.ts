@@ -18,6 +18,9 @@ import {
   mockRequestToken,
   mockUriCallback,
   mockUserId,
+  mockUpdatedAuthLog,
+  mockAccessToken,
+  mockAuthLogResponse,
 } from './__mocks__/mock-api-responses';
 import {
   mockConfigService,
@@ -67,11 +70,11 @@ describe('AuthService', () => {
     service = module.get<AuthService>(AuthService);
   });
 
-  it('should be defined', () => {
+  it('AuthService should be defined', () => {
     expect(service).toBeDefined();
   });
 
-  it('should return access token response on success', async () => {
+  it('[apiTokenRequest] should return access token', async () => {
     mockHttpCustomService.post.mockReturnValue(of(mockAccessTokenResponse));
 
     const result = await service.apiTokenRequest(mockUrlEncodedData);
@@ -83,7 +86,7 @@ describe('AuthService', () => {
     );
   });
 
-  it('should throw an error token response error', async () => {
+  it('[apiTokenRequest] should throw an error access token', async () => {
     const mockAxiosError = {
       isAxiosError: true,
       response: {
@@ -103,13 +106,13 @@ describe('AuthService', () => {
     );
   });
 
-  it('should save new Log Auth', async () => {
+  it('[createNewLog] should save new Log Auth', async () => {
     const result = await service.createNewLog(mockCreateAuthLogDto);
     expect(mockAuthLogModel).toHaveBeenCalledWith(mockCreateAuthLogDto);
     expect(result).toEqual(mockSavedLog);
   });
 
-  it('should create a user token and return the data', async () => {
+  it('[createUserToken] should create a user token', async () => {
     const apiTokenRequestMock = jest
       .spyOn(service as any, 'apiTokenRequest')
       .mockResolvedValue({ data: mockResponseData });
@@ -124,7 +127,7 @@ describe('AuthService', () => {
     expect(result).toEqual(mockResponseData);
   });
 
-  it('should update the auth log successfully', async () => {
+  it('[updateLog] should update the auth log', async () => {
     mockAuthLogModel.findByIdAndUpdate.mockReturnValue({
       exec: jest.fn().mockResolvedValue(updatedLog),
     });
@@ -139,7 +142,7 @@ describe('AuthService', () => {
     expect(result).toEqual(updatedLog);
   });
 
-  it('should throw NotFoundException at findByIdAndUpdate', async () => {
+  it('[updateLog] should throw NotFoundException at findByIdAndUpdate', async () => {
     mockAuthLogModel.findByIdAndUpdate.mockReturnValue({
       exec: jest.fn().mockResolvedValue(null),
     });
@@ -155,7 +158,7 @@ describe('AuthService', () => {
     );
   });
 
-  it('should get the auth log successfully', async () => {
+  it('[getAuthLog] should get the auth log', async () => {
     mockAuthLogModel.findById.mockReturnValue({
       exec: jest.fn().mockResolvedValue(mockAuthLog),
     });
@@ -166,7 +169,7 @@ describe('AuthService', () => {
     expect(result).toEqual(mockAuthLog);
   });
 
-  it('should throw NotFoundException at getAuthLog', async () => {
+  it('[getAuthLog] should throw NotFoundException at findById', async () => {
     mockAuthLogModel.findById.mockReturnValue({
       exec: jest.fn().mockResolvedValue(null),
     });
@@ -178,7 +181,7 @@ describe('AuthService', () => {
     expect(mockAuthLogModel.findById).toHaveBeenCalledWith(idNotFound);
   });
 
-  it('should get auth log by userId', async () => {
+  it('[getAuthLogByUserId] should get auth log by userId', async () => {
     mockAuthLogModel.findOne.mockReturnValue(
       mockReturnValueFindOne(mockAuthLog),
     );
@@ -191,7 +194,7 @@ describe('AuthService', () => {
     expect(result).toEqual(mockAuthLog);
   });
 
-  it('should throw NotFoundException at getAuthLog by user id', async () => {
+  it('[getAuthLogByUserId] should throw NotFoundException at findOne', async () => {
     mockAuthLogModel.findOne.mockReturnValue(mockReturnValueFindOne(null));
 
     await expect(service.getAuthLogByUserId(idNotFound)).rejects.toThrow(
@@ -201,5 +204,70 @@ describe('AuthService', () => {
     expect(mockAuthLogModel.findOne).toHaveBeenCalledWith({
       usernameId: idNotFound,
     });
+  });
+
+  it('[updateAuthToken] should update auth token', async () => {
+    jest.spyOn(service, 'getAuthLog').mockResolvedValue(mockAuthLog);
+
+    jest
+      .spyOn(service, 'apiTokenRequest')
+      .mockResolvedValue(mockAuthLogResponse);
+
+    mockAuthLogModel.findByIdAndUpdate.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(mockUpdatedAuthLog),
+    });
+
+    const result = await service.updateAuthToken(mockAuthId);
+
+    expect(service.getAuthLog).toHaveBeenCalledWith(mockAuthId);
+    expect(service.apiTokenRequest).toHaveBeenCalled();
+    expect(mockAuthLogModel.findByIdAndUpdate).toHaveBeenCalledWith(
+      mockAuthId,
+      {
+        accessToken: mockAccessToken,
+      },
+    );
+    expect(result).toEqual(mockUpdatedAuthLog);
+  });
+
+  it('[updateAuthToken] should throw an error NotFoundException at findByIdAndUpdate', async () => {
+    jest.spyOn(service, 'getAuthLog').mockResolvedValue(mockAuthLog);
+
+    jest
+      .spyOn(service, 'apiTokenRequest')
+      .mockResolvedValue(mockAuthLogResponse);
+
+    mockAuthLogModel.findByIdAndUpdate.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(null),
+    });
+
+    await expect(service.updateAuthToken(idNotFound)).rejects.toThrow(
+      NotFoundException,
+    );
+
+    expect(mockAuthLogModel.findById).toHaveBeenCalledWith(idNotFound);
+  });
+
+  it('[deleteAuthLog] should delete the auth log', async () => {
+    mockAuthLogModel.findByIdAndDelete.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(mockAuthId),
+    });
+
+    const result = await service.deleteAuthLog(mockAuthId);
+
+    expect(mockAuthLogModel.findByIdAndDelete).toHaveBeenCalledWith(mockAuthId);
+    expect(result).toEqual(mockAuthId);
+  });
+
+  it('[deleteAuthLog] should throw NotFoundException at findByIdAndDelete', async () => {
+    mockAuthLogModel.findByIdAndDelete.mockReturnValue({
+      exec: jest.fn().mockResolvedValue(null),
+    });
+
+    await expect(service.deleteAuthLog(idNotFound)).rejects.toThrow(
+      NotFoundException,
+    );
+
+    expect(mockAuthLogModel.findByIdAndDelete).toHaveBeenCalledWith(idNotFound);
   });
 });

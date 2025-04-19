@@ -21,7 +21,26 @@ export const mockAccessTokenError = {
 export const mockUrlEncodedData = 'grant_type=authorization_code&code=123';
 export const mockHostApiSpotify = 'https://mock-api.spotify.com/api/token';
 
-export const mockAuthLog: AuthLog = { code: '123abc' } as any;
+export const mockAuthLog: AuthLog = {
+  code: '123abc',
+  refreshToken: 'mock-refresh-token',
+} as any;
+
+export const mockAccessToken = 'new-access-token';
+export const mockNewAccessToken = 'new-access-token';
+
+export const mockUpdatedAuthLog = {
+  _id: 'mock-id',
+  accessToken: mockNewAccessToken,
+};
+
+export const mockAuthLogResponse = {
+  data: {
+    access_token: mockAccessToken,
+    token_type: 'Bearer',
+    expires_in: 3600,
+  },
+} as any;
 
 export const mockUserId = 'userId';
 
