@@ -7,20 +7,17 @@ import { ConfigService } from '@nestjs/config';
 import { ErrorHandlerService } from 'src/common/exceptions/error-handler.service';
 import { getLoggerToken } from 'nestjs-pino';
 import { of, throwError } from 'rxjs';
-import { AxiosError } from 'axios';
 import {
   mockAccessTokenResponse,
   mockHostApiSpotify,
   mockUrlEncodedData,
-  mockAccessTokenError,
   mockResponseData,
   mockAuthLog,
   mockRequestToken,
   mockUriCallback,
   mockUserId,
   mockUpdatedAuthLog,
-  mockAccessToken,
-  mockAuthLogResponse,
+  mockAxiosError,
 } from './__mocks__/mock-api-responses';
 import {
   mockConfigService,
@@ -37,6 +34,7 @@ import {
 } from 'src/__mocks__/mock-models';
 import * as qs from 'qs';
 import { NotFoundException } from '@nestjs/common';
+import { loggerMock } from 'src/__mocks__/mock-logger';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -54,11 +52,7 @@ describe('AuthService', () => {
         { provide: ErrorHandlerService, useValue: {} },
         {
           provide: getLoggerToken(AuthService.name),
-          useValue: {
-            info: jest.fn(),
-            error: jest.fn(),
-            setContext: jest.fn(),
-          },
+          useValue: loggerMock,
         },
         {
           provide: ConfigService,
@@ -87,18 +81,13 @@ describe('AuthService', () => {
   });
 
   it('[apiTokenRequest] should throw an error access token', async () => {
-    const mockAxiosError = {
-      isAxiosError: true,
-      response: {
-        ...mockAccessTokenError,
-      },
-    } as AxiosError;
-
     mockHttpCustomService.post.mockReturnValue(
       throwError(() => mockAxiosError),
     );
 
     await expect(service.apiTokenRequest(mockUrlEncodedData)).rejects.toThrow();
+
+    expect(loggerMock.error).toHaveBeenCalledWith(mockAxiosError.response.data);
 
     expect(mockHttpCustomService.post).toHaveBeenCalledWith(
       mockHostApiSpotify,
@@ -108,6 +97,8 @@ describe('AuthService', () => {
 
   it('[createNewLog] should save new Log Auth', async () => {
     const result = await service.createNewLog(mockCreateAuthLogDto);
+    expect(loggerMock.info).toHaveBeenCalledWith('Starting create new log...');
+    expect(loggerMock.info).toHaveBeenCalledWith('End create new log');
     expect(mockAuthLogModel).toHaveBeenCalledWith(mockCreateAuthLogDto);
     expect(result).toEqual(mockSavedLog);
   });
@@ -121,6 +112,10 @@ describe('AuthService', () => {
 
     const result = await service.createUserToken(mockAuthLog);
 
+    expect(loggerMock.info).toHaveBeenCalledWith(
+      'Starting create user token...',
+    );
+    expect(loggerMock.info).toHaveBeenCalledWith('End create user token...');
     expect(apiTokenRequestMock).toHaveBeenCalledWith(
       qs.stringify(mockRequestToken),
     );
@@ -134,6 +129,8 @@ describe('AuthService', () => {
 
     const result = await service.updateLog(mockAuthId, mockCreateAuthLogDto);
 
+    expect(loggerMock.info).toHaveBeenCalledWith('Starting update log...');
+    expect(loggerMock.info).toHaveBeenCalledWith('Ending update log...');
     expect(mockAuthLogModel.findByIdAndUpdate).toHaveBeenCalledWith(
       mockAuthId,
       mockCreateAuthLogDto,
@@ -151,6 +148,7 @@ describe('AuthService', () => {
       service.updateLog(idNotFound, mockCreateAuthLogDto),
     ).rejects.toThrow(NotFoundException);
 
+    expect(loggerMock.error).toHaveBeenCalledWith('Log not found');
     expect(mockAuthLogModel.findByIdAndUpdate).toHaveBeenCalledWith(
       idNotFound,
       mockCreateAuthLogDto,
@@ -165,6 +163,8 @@ describe('AuthService', () => {
 
     const result = await service.getAuthLog(mockAuthId);
 
+    expect(loggerMock.info).toHaveBeenCalledWith('Starting get AuthLog...');
+    expect(loggerMock.info).toHaveBeenCalledWith('End get AuthLog...');
     expect(mockAuthLogModel.findById).toHaveBeenCalledWith(mockAuthId);
     expect(result).toEqual(mockAuthLog);
   });
@@ -178,6 +178,7 @@ describe('AuthService', () => {
       NotFoundException,
     );
 
+    expect(loggerMock.error).toHaveBeenCalledWith('Log not found');
     expect(mockAuthLogModel.findById).toHaveBeenCalledWith(idNotFound);
   });
 
@@ -211,7 +212,7 @@ describe('AuthService', () => {
 
     jest
       .spyOn(service, 'apiTokenRequest')
-      .mockResolvedValue(mockAuthLogResponse);
+      .mockResolvedValue(mockAccessTokenResponse);
 
     mockAuthLogModel.findByIdAndUpdate.mockReturnValue({
       exec: jest.fn().mockResolvedValue(mockUpdatedAuthLog),
@@ -224,7 +225,7 @@ describe('AuthService', () => {
     expect(mockAuthLogModel.findByIdAndUpdate).toHaveBeenCalledWith(
       mockAuthId,
       {
-        accessToken: mockAccessToken,
+        accessToken: mockAccessTokenResponse.data.access_token,
       },
     );
     expect(result).toEqual(mockUpdatedAuthLog);
@@ -235,7 +236,7 @@ describe('AuthService', () => {
 
     jest
       .spyOn(service, 'apiTokenRequest')
-      .mockResolvedValue(mockAuthLogResponse);
+      .mockResolvedValue(mockAccessTokenResponse);
 
     mockAuthLogModel.findByIdAndUpdate.mockReturnValue({
       exec: jest.fn().mockResolvedValue(null),
