@@ -21,6 +21,7 @@ import {
 } from './__mocks__/mock-api-responses';
 import {
   mockConfigService,
+  mockHandleService,
   mockHttpCustomService,
 } from 'src/__mocks__/mock-services';
 import {
@@ -33,7 +34,7 @@ import {
   mockReturnValueFindOne,
 } from 'src/__mocks__/mock-models';
 import * as qs from 'qs';
-import { NotFoundException } from '@nestjs/common';
+import { NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { loggerMock } from 'src/__mocks__/mock-logger';
 
 describe('AuthService', () => {
@@ -49,7 +50,7 @@ describe('AuthService', () => {
           useValue: mockAuthLogModel,
         },
         { provide: HttpCustomService, useValue: mockHttpCustomService },
-        { provide: ErrorHandlerService, useValue: {} },
+        { provide: ErrorHandlerService, useValue: mockHandleService },
         {
           provide: getLoggerToken(AuthService.name),
           useValue: loggerMock,
@@ -84,6 +85,10 @@ describe('AuthService', () => {
     mockHttpCustomService.post.mockReturnValue(
       throwError(() => mockAxiosError),
     );
+
+    mockHandleService.handleError.mockImplementation(() => {
+      throw new UnauthorizedException();
+    });
 
     await expect(service.apiTokenRequest(mockUrlEncodedData)).rejects.toThrow();
 

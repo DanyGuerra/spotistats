@@ -1,7 +1,9 @@
+import { IResponseAccessToken } from './../../common/interfaces/IResponseAccessToken';
 import { AxiosError, AxiosHeaders, AxiosResponse } from 'axios';
 import { AuthLog } from 'src/auth/auth-logs.schema';
-import { IResponseAccessToken } from 'src/common/interfaces/IResponseAccessToken';
+import { CreateAuthLogDto } from 'src/common/dto/create-auth-log.dto';
 import { IResponseError } from 'src/common/interfaces/IResponseError';
+import { ISpotifyProfile } from 'src/common/interfaces/ISpotifyProfile';
 
 export const mockAccessTokenResponse: AxiosResponse<IResponseAccessToken> = {
   data: {
@@ -69,6 +71,7 @@ export const mockHostApiSpotify: string =
   'https://mock-api.spotify.com/api/token';
 
 export const mockAuthLog: AuthLog = {
+  id: 'mock-id',
   code: '123abc',
   refreshToken: 'mock-refresh-token',
 } as any;
@@ -98,4 +101,35 @@ export const mockQueryParamsLogin = {
   redirect_uri: 'https://mock-callback.com',
   state: mockState,
   show_dialog: true,
+};
+
+export const mockQuery: CreateAuthLogDto = {
+  state: 'mock-state',
+  code: 'auth-code',
+};
+
+export const mockRes = {
+  redirect: jest.fn(),
+};
+
+export const mockUserProfile: ISpotifyProfile = {
+  display_name: 'display_name',
+  external_urls: { spotify: 'url' },
+  href: 'href',
+  id: 'user_id',
+  images: [{ url: 'url', height: 10, width: 10 }],
+  type: 'type',
+  uri: 'uri',
+  followers: { href: 'href', total: 10 },
+  country: 'country',
+  product: 'product',
+  explicit_content: { filter_enabled: true, filter_locked: true },
+  email: 'user_email',
+};
+
+export const mockDataUpdate: CreateAuthLogDto = {
+  accessToken: mockAccessTokenResponse.data.access_token,
+  refreshToken: mockAccessTokenResponse.data.refresh_token,
+  usernameId: mockUserProfile.id,
+  displayName: mockUserProfile.display_name,
 };
