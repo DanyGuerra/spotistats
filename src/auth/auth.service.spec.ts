@@ -6,7 +6,7 @@ import { HttpCustomService } from 'src/common/CustomHttp/custom-http.service';
 import { ConfigService } from '@nestjs/config';
 import { ErrorHandlerService } from 'src/common/exceptions/error-handler.service';
 import { getLoggerToken } from 'nestjs-pino';
-import { of, throwError } from 'rxjs';
+import { of } from 'rxjs';
 import {
   mockAccessTokenResponse,
   mockHostApiSpotify,
@@ -17,7 +17,6 @@ import {
   mockUriCallback,
   mockUserId,
   mockUpdatedAuthLog,
-  mockAxiosError,
 } from './__mocks__/mock-api-responses';
 import {
   mockConfigService,
@@ -34,7 +33,7 @@ import {
   mockReturnValueFindOne,
 } from 'src/__mocks__/mock-models';
 import * as qs from 'qs';
-import { NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
 import { loggerMock } from 'src/__mocks__/mock-logger';
 
 describe('AuthService', () => {
@@ -75,25 +74,6 @@ describe('AuthService', () => {
     const result = await service.apiTokenRequest(mockUrlEncodedData);
 
     expect(result).toEqual(mockAccessTokenResponse);
-    expect(mockHttpCustomService.post).toHaveBeenCalledWith(
-      mockHostApiSpotify,
-      mockUrlEncodedData,
-    );
-  });
-
-  it('[apiTokenRequest] should throw an error access token', async () => {
-    mockHttpCustomService.post.mockReturnValue(
-      throwError(() => mockAxiosError),
-    );
-
-    mockHandleService.handleError.mockImplementation(() => {
-      throw new UnauthorizedException();
-    });
-
-    await expect(service.apiTokenRequest(mockUrlEncodedData)).rejects.toThrow();
-
-    expect(loggerMock.error).toHaveBeenCalledWith(mockAxiosError.response.data);
-
     expect(mockHttpCustomService.post).toHaveBeenCalledWith(
       mockHostApiSpotify,
       mockUrlEncodedData,

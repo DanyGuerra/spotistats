@@ -43,19 +43,10 @@ export class AuthService {
     urlEncodedData: string,
   ): Promise<AxiosResponse<IResponseAccessToken>> {
     return firstValueFrom(
-      this.httpService
-        .post<IResponseAccessToken>(
-          `${this.hostAccountsApiSpotify}/api/token`,
-          urlEncodedData,
-        )
-        .pipe(
-          catchError((error: AxiosError) => {
-            this.logger.error(error.response.data);
-            this.errorHandlerService.handleError(error);
-
-            return throwError(() => error);
-          }),
-        ),
+      this.httpService.post<IResponseAccessToken>(
+        `${this.hostAccountsApiSpotify}/api/token`,
+        urlEncodedData,
+      ),
     );
   }
 
