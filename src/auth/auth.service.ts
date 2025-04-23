@@ -3,15 +3,14 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateAuthLogDto } from 'src/common/dto/create-auth-log.dto';
 import { AuthLog } from 'src/auth/auth-logs.schema';
-import { catchError, firstValueFrom, throwError } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import * as qs from 'querystring';
 import { ConfigService } from '@nestjs/config';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { IResponseAccessToken } from 'src/common/interfaces/IResponseAccessToken';
-import { AxiosError, AxiosResponse } from 'axios';
+import { AxiosResponse } from 'axios';
 import { IRequestToken } from 'src/common/interfaces/IRequestAccessToken';
 import { IRequestRefreshToken } from 'src/common/interfaces/IRequestRefreshToken';
-import { ErrorHandlerService } from 'src/common/exceptions/error-handler.service';
 import { HttpCustomService } from 'src/common/CustomHttp/custom-http.service';
 
 @Injectable()
@@ -24,7 +23,6 @@ export class AuthService {
     @InjectModel('AuthLog') private readonly authLogModel: Model<AuthLog>,
     private readonly httpService: HttpCustomService,
     private readonly configService: ConfigService,
-    private readonly errorHandlerService: ErrorHandlerService,
     @InjectPinoLogger(AuthService.name) private readonly logger: PinoLogger,
   ) {
     const { hostAccountsApiSpotify, redirectUriCallback, apiSptifyClientId } =

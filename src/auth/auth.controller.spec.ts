@@ -6,6 +6,7 @@ import { AuthService } from './auth.service';
 import {
   mockAuthService,
   mockConfigService,
+  mockHandleService,
   mockHostFrontEnd,
   mockSpotifyApiEnv,
   mockStatsService,
@@ -15,20 +16,29 @@ import { loggerMock } from 'src/__mocks__/mock-logger';
 import { StatsService } from 'src/stats/stats.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import {
+  mockAccessTokenError,
   mockAccessTokenResponse,
   mockAuthLog,
+  mockAxiosError,
   mockDataUpdate,
-  mockQuery,
+  mockQueryCreateAuth,
+  mockQueryError,
+  mockQueryGetId,
   mockQueryParamsLogin,
   mockRes,
   mockState,
   mockUpdatedAuthLog,
+  mockUserId,
   mockUserProfile,
 } from './__mocks__/mock-api-responses';
+import { ErrorHandlerService } from 'src/common/exceptions/error-handler.service';
+import { HttpStatus } from '@nestjs/common';
+
+let errorHandlerService: ErrorHandlerService;
+let authService: AuthService;
+let controller: AuthController;
 
 describe('Auth Controller', () => {
-  let controller: AuthController;
-
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [],
@@ -36,6 +46,7 @@ describe('Auth Controller', () => {
         AuthController,
         { provide: AuthService, useValue: mockAuthService },
         { provide: StatsService, useValue: mockStatsService },
+        { provide: ErrorHandlerService, useValue: mockHandleService },
         {
           provide: getLoggerToken(AuthController.name),
           useValue: loggerMock,
@@ -48,6 +59,8 @@ describe('Auth Controller', () => {
     }).compile();
 
     controller = module.get<AuthController>(AuthController);
+    errorHandlerService = module.get<ErrorHandlerService>(ErrorHandlerService);
+    authService = module.get<AuthService>(AuthService);
   });
 
   it('Should be defined', () => {
@@ -79,9 +92,11 @@ describe('Auth Controller', () => {
     mockStatsService.getUserProfile.mockResolvedValue(mockUserProfile);
     mockAuthService.updateLog.mockResolvedValue(mockUpdatedAuthLog);
 
-    await controller.authCallBack(mockQuery as any, mockRes as any);
+    await controller.authCallBack(mockQueryCreateAuth, mockRes as any);
 
-    expect(mockAuthService.createNewLog).toHaveBeenCalledWith(mockQuery);
+    expect(mockAuthService.createNewLog).toHaveBeenCalledWith(
+      mockQueryCreateAuth,
+    );
     expect(mockAuthService.createUserToken).toHaveBeenCalledWith(mockAuthLog);
     expect(mockStatsService.getUserProfile).toHaveBeenCalledWith(
       mockAccessTokenResponse.data.access_token,
@@ -93,8 +108,115 @@ describe('Auth Controller', () => {
     );
 
     expect(mockRes.redirect).toHaveBeenCalledWith(
-      301,
+      HttpStatus.MOVED_PERMANENTLY,
       `${mockHostFrontEnd}/${mockUpdatedAuthLog.usernameId}`,
+    );
+  });
+
+  it('[callback] querys with errors', async () => {
+    await controller.authCallBack(mockQueryError as any, mockRes as any);
+
+    expect(mockRes.redirect).toHaveBeenCalledWith(
+      HttpStatus.MOVED_PERMANENTLY,
+      `${mockHostFrontEnd}/login-error?info=state_mismatch`,
+    );
+  });
+
+  it('[callback] querys with no code', async () => {
+    await controller.authCallBack(mockQueryError, mockRes as any);
+
+    expect(mockRes.redirect).toHaveBeenCalledWith(
+      HttpStatus.MOVED_PERMANENTLY,
+      `${mockHostFrontEnd}/login-error?info=${mockQueryError.error}`,
+    );
+  });
+
+  it('[callback] error auth callback', async () => {
+    jest
+      .spyOn(authService, 'createNewLog')
+      .mockRejectedValue(mockAccessTokenError);
+
+    await controller.authCallBack(mockQueryCreateAuth, mockRes as any);
+    expect(errorHandlerService.handleError).toHaveBeenCalledWith(
+      mockAccessTokenError,
+    );
+  });
+
+  it('[token/refresh] success', async () => {
+    jest
+      .spyOn(authService, 'updateAuthToken')
+      .mockResolvedValue(mockUpdatedAuthLog);
+
+    const result = await controller.refreshTokenById(mockQueryGetId);
+
+    expect(authService.updateAuthToken).toHaveBeenCalledWith(mockQueryGetId.id);
+    expect(result).toEqual(mockUpdatedAuthLog);
+  });
+
+  it('[token/refresh] error', async () => {
+    jest
+      .spyOn(authService, 'updateAuthToken')
+      .mockRejectedValue(mockAxiosError);
+
+    await controller.refreshTokenById(mockQueryGetId);
+
+    expect(errorHandlerService.handleError).toHaveBeenCalledWith(
+      mockAxiosError,
+    );
+  });
+
+  it('[get-log] success', async () => {
+    jest.spyOn(authService, 'getAuthLog').mockResolvedValue(mockAuthLog);
+
+    const result = await controller.getAuthLog(mockQueryGetId);
+    expect(result).toEqual(mockAuthLog);
+  });
+
+  it('[get-log] error', async () => {
+    jest.spyOn(authService, 'getAuthLog').mockRejectedValue(mockAxiosError);
+
+    await controller.getAuthLog(mockQueryGetId);
+
+    expect(errorHandlerService.handleError).toHaveBeenCalledWith(
+      mockAxiosError,
+    );
+  });
+
+  it('[get-log-userid] success', async () => {
+    jest
+      .spyOn(authService, 'getAuthLogByUserId')
+      .mockResolvedValue(mockAuthLog);
+
+    const result = await controller.getAuthLogByUserId(mockUserId);
+    expect(result).toEqual(mockAuthLog);
+  });
+
+  it('[get-log-userid] error', async () => {
+    jest
+      .spyOn(authService, 'getAuthLogByUserId')
+      .mockRejectedValue(mockAxiosError);
+
+    await controller.getAuthLogByUserId(mockUserId);
+
+    expect(errorHandlerService.handleError).toHaveBeenCalledWith(
+      mockAxiosError,
+    );
+  });
+
+  it('[logout] success', async () => {
+    jest.spyOn(authService, 'deleteAuthLog').mockResolvedValue(mockAuthLog);
+
+    const result = await controller.logout(mockQueryGetId);
+    expect(result).toEqual(mockAuthLog);
+  });
+
+  it('[logout] error', async () => {
+    jest.spyOn(authService, 'deleteAuthLog').mockRejectedValue(mockAxiosError);
+
+    await controller.logout(mockQueryGetId);
+
+    expect(errorHandlerService.handleError).toHaveBeenCalledWith(
+      mockAxiosError,
     );
   });
 });

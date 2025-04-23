@@ -3,9 +3,14 @@ export const mockHttpCustomService = {
 };
 
 export const mockAuthService = {
+  apiTokenRequest: jest.fn(),
   createNewLog: jest.fn(),
   createUserToken: jest.fn(),
   updateLog: jest.fn(),
+  getAuthLog: jest.fn(),
+  getAuthLogByUserId: jest.fn(),
+  updateAuthToken: jest.fn(),
+  deleteAuthLog: jest.fn(),
 };
 
 export const mockStatsService = {

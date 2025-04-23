@@ -18,6 +18,7 @@ import { StatsService } from 'src/stats/stats.service';
 import { GetByIdDto } from '../common/dto/get-by-id.dto';
 import { AuthLog } from './auth-logs.schema';
 import { Response } from 'express';
+import { ErrorHandlerService } from 'src/common/exceptions/error-handler.service';
 
 @Controller('auth')
 export class AuthController {
@@ -25,11 +26,12 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly statsService: StatsService,
     private readonly configService: ConfigService,
+    private readonly errorHandlerService: ErrorHandlerService,
     @InjectPinoLogger(AuthController.name) private readonly logger: PinoLogger,
   ) {}
 
   @Get('login')
-  login() {
+  login(): { url: string } {
     this.logger.info('Starting auth/login route...');
 
     const {
@@ -64,43 +66,47 @@ export class AuthController {
   async authCallBack(@Query() querys: CreateAuthLogDto, @Res() res: Response) {
     this.logger.info('Starting auth/callback route...');
 
-    const hostFrontEnd = this.configService.get<string>('hostFrontEnd');
+    try {
+      const hostFrontEnd = this.configService.get<string>('hostFrontEnd');
 
-    if (querys.error) {
+      if (querys.error) {
+        res.redirect(
+          HttpStatus.MOVED_PERMANENTLY,
+          `${hostFrontEnd}/login-error?info=${querys.error}`,
+        );
+      }
+
+      if (!querys.state) {
+        res.redirect(
+          HttpStatus.MOVED_PERMANENTLY,
+          `${hostFrontEnd}/login-error?info=state_mismatch`,
+        );
+      }
+
+      const newLog = await this.authService.createNewLog(querys);
+      const token = await this.authService.createUserToken(newLog);
+      const usernameId = await this.statsService.getUserProfile(
+        token.access_token,
+      );
+
+      const dataUpdate: CreateAuthLogDto = {
+        accessToken: token.access_token,
+        refreshToken: token.refresh_token,
+        usernameId: usernameId.id,
+        displayName: usernameId.display_name,
+      };
+
+      const updateLog = await this.authService.updateLog(newLog.id, dataUpdate);
+
       res.redirect(
         HttpStatus.MOVED_PERMANENTLY,
-        `${hostFrontEnd}/login-error?info=${querys.error}`,
+        `${hostFrontEnd}/${updateLog.usernameId}`,
       );
+    } catch (error) {
+      this.errorHandlerService.handleError(error);
+    } finally {
+      this.logger.info('End auth/callback route');
     }
-
-    if (!querys.state) {
-      res.redirect(
-        HttpStatus.MOVED_PERMANENTLY,
-        `${hostFrontEnd}/login-error?info=state_mismatch`,
-      );
-    }
-
-    const newLog = await this.authService.createNewLog(querys);
-    const token = await this.authService.createUserToken(newLog);
-    const usernameId = await this.statsService.getUserProfile(
-      token.access_token,
-    );
-
-    const dataUpdate: CreateAuthLogDto = {
-      accessToken: token.access_token,
-      refreshToken: token.refresh_token,
-      usernameId: usernameId.id,
-      displayName: usernameId.display_name,
-    };
-
-    const updateLog = await this.authService.updateLog(newLog.id, dataUpdate);
-
-    this.logger.info('End auth/callback route');
-
-    res.redirect(
-      HttpStatus.MOVED_PERMANENTLY,
-      `${hostFrontEnd}/${updateLog.usernameId}`,
-    );
   }
 
   @Post('token/refresh')
@@ -108,49 +114,54 @@ export class AuthController {
   async refreshTokenById(@Query() querys: GetByIdDto): Promise<AuthLog> {
     this.logger.info('Starting auth/token/refresh route...');
 
-    const { id } = querys;
-
-    const updateAuthLog = await this.authService.updateAuthToken(id);
-
-    this.logger.info('End auth/token/refresh route');
-
-    return updateAuthLog;
+    try {
+      const { id } = querys;
+      return await this.authService.updateAuthToken(id);
+    } catch (error) {
+      this.errorHandlerService.handleError(error);
+    } finally {
+      this.logger.info('End auth/token/refresh route');
+    }
   }
 
   @Get('get-log')
-  getAuthLog(@Query() querys: GetByIdDto): Promise<AuthLog> {
+  async getAuthLog(@Query() querys: GetByIdDto): Promise<AuthLog> {
     this.logger.info('Starting auth/get-log route...');
 
-    const { id } = querys;
-
-    const authLog = this.authService.getAuthLog(id);
-
-    this.logger.info('End auth/get-log route');
-
-    return authLog;
+    try {
+      const { id } = querys;
+      return await this.authService.getAuthLog(id);
+    } catch (error) {
+      this.errorHandlerService.handleError(error);
+    } finally {
+      this.logger.info('End auth/get-log route');
+    }
   }
 
   @Get('get-log-userid')
-  getAuthLogByUserId(@Query('userid') userId: string): Promise<AuthLog> {
+  async getAuthLogByUserId(@Query('userid') userId: string): Promise<AuthLog> {
     this.logger.info('Starting auth/get-log-userid route...');
 
-    const authLog = this.authService.getAuthLogByUserId(userId);
-
-    this.logger.info('End auth/get-log-userId route');
-
-    return authLog;
+    try {
+      return await this.authService.getAuthLogByUserId(userId);
+    } catch (error) {
+      this.errorHandlerService.handleError(error);
+    } finally {
+      this.logger.info('End auth/get-log-userId route');
+    }
   }
 
   @Delete('logout')
-  logout(@Query() querys: GetByIdDto): Promise<AuthLog> {
+  async logout(@Query() querys: GetByIdDto): Promise<AuthLog> {
     this.logger.info('Starting auth/logout route...');
 
-    const { id } = querys;
-
-    const authLog = this.authService.deleteAuthLog(id);
-
-    this.logger.info('End auth/logout route');
-
-    return authLog;
+    try {
+      const { id } = querys;
+      return await this.authService.deleteAuthLog(id);
+    } catch (error) {
+      this.errorHandlerService.handleError(error);
+    } finally {
+      this.logger.info('End auth/logout route');
+    }
   }
 }

@@ -2,6 +2,7 @@ import { IResponseAccessToken } from './../../common/interfaces/IResponseAccessT
 import { AxiosError, AxiosHeaders, AxiosResponse } from 'axios';
 import { AuthLog } from 'src/auth/auth-logs.schema';
 import { CreateAuthLogDto } from 'src/common/dto/create-auth-log.dto';
+import { GetByIdDto } from 'src/common/dto/get-by-id.dto';
 import { IResponseError } from 'src/common/interfaces/IResponseError';
 import { ISpotifyProfile } from 'src/common/interfaces/ISpotifyProfile';
 
@@ -103,9 +104,19 @@ export const mockQueryParamsLogin = {
   show_dialog: true,
 };
 
-export const mockQuery: CreateAuthLogDto = {
+export const mockQueryCreateAuth: CreateAuthLogDto = {
   state: 'mock-state',
   code: 'auth-code',
+};
+
+export const mockQueryGetId: GetByIdDto = {
+  id: 'id',
+};
+
+export const mockQueryError: CreateAuthLogDto = {
+  state: '',
+  code: 'auth-code',
+  error: 'error',
 };
 
 export const mockRes = {
