@@ -1,5 +1,6 @@
 export const mockHttpCustomService = {
   post: jest.fn(),
+  get: jest.fn(),
 };
 
 export const mockAuthService = {
@@ -17,24 +18,25 @@ export const mockStatsService = {
   getUserProfile: jest.fn(),
 };
 
-export const mockHostFrontEnd = 'http://localhost:4200';
-
-export const mockSpotifyApiEnv = {
-  hostAccountsApiSpotify: 'https://mock-api.spotify.com',
-  redirectUriCallback: 'https://mock-callback.com',
-  apiSptifyClientId: 'apiSptifyClientId',
-  apiUserScope: 'apiUserScope',
+export const mockEnvVariables = {
+  host: 'http://localhost:4200',
+  port: 3000,
+  apiContext: 'api/v',
+  hostFrontEnd: 'http://localhost:4200',
+  database: { uri: 'mongo//uri' },
+  spotifyApi: {
+    hostAccountsApiSpotify: 'https://mock-accounts-api.spotify.com',
+    redirectUriCallback: 'https://mock-callback.com',
+    apiSptifyClientId: 'apiSptifyClientId',
+    apiUserScope: 'apiUserScope',
+    hostApiSpotify: 'https://mock-api-spotify.com',
+    apiSptifySecret: 'spotify-secret',
+  },
 };
 
 export const mockConfigService = {
   get: jest.fn((key: string) => {
-    if (key === 'spotifyApi') {
-      return mockSpotifyApiEnv;
-    }
-    if (key === 'hostFrontEnd') {
-      return mockHostFrontEnd;
-    }
-    return null;
+    return mockEnvVariables[key];
   }),
 };
 

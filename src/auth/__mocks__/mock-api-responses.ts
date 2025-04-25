@@ -68,8 +68,8 @@ export const mockAxiosError: AxiosError = {
 
 export const mockUrlEncodedData: string =
   'grant_type=authorization_code&code=123';
-export const mockHostApiSpotify: string =
-  'https://mock-api.spotify.com/api/token';
+export const mocAccountApiSpotify: string =
+  'https://mock-accounts-api.spotify.com/api/token';
 
 export const mockAuthLog: AuthLog = {
   id: 'mock-id',

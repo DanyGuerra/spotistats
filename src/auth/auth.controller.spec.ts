@@ -7,8 +7,7 @@ import {
   mockAuthService,
   mockConfigService,
   mockHandleService,
-  mockHostFrontEnd,
-  mockSpotifyApiEnv,
+  mockEnvVariables,
   mockStatsService,
 } from 'src/__mocks__/mock-services';
 import { getLoggerToken } from 'nestjs-pino';
@@ -73,7 +72,7 @@ describe('Auth Controller', () => {
     const result = await controller.login();
 
     const urlMock = {
-      url: `${mockSpotifyApiEnv.hostAccountsApiSpotify}/authorize?${queryString.stringify(mockQueryParamsLogin)}`,
+      url: `${mockEnvVariables.spotifyApi.hostAccountsApiSpotify}/authorize?${queryString.stringify(mockQueryParamsLogin)}`,
     };
 
     expect(mockConfigService.get).toHaveBeenCalledWith('spotifyApi');
@@ -109,7 +108,7 @@ describe('Auth Controller', () => {
 
     expect(mockRes.redirect).toHaveBeenCalledWith(
       HttpStatus.MOVED_PERMANENTLY,
-      `${mockHostFrontEnd}/${mockUpdatedAuthLog.usernameId}`,
+      `${mockEnvVariables.hostFrontEnd}/${mockUpdatedAuthLog.usernameId}`,
     );
   });
 
@@ -118,7 +117,7 @@ describe('Auth Controller', () => {
 
     expect(mockRes.redirect).toHaveBeenCalledWith(
       HttpStatus.MOVED_PERMANENTLY,
-      `${mockHostFrontEnd}/login-error?info=state_mismatch`,
+      `${mockEnvVariables.hostFrontEnd}/login-error?info=state_mismatch`,
     );
   });
 
@@ -127,7 +126,7 @@ describe('Auth Controller', () => {
 
     expect(mockRes.redirect).toHaveBeenCalledWith(
       HttpStatus.MOVED_PERMANENTLY,
-      `${mockHostFrontEnd}/login-error?info=${mockQueryError.error}`,
+      `${mockEnvVariables.hostFrontEnd}/login-error?info=${mockQueryError.error}`,
     );
   });
 

@@ -9,7 +9,7 @@ import { getLoggerToken } from 'nestjs-pino';
 import { of } from 'rxjs';
 import {
   mockAccessTokenResponse,
-  mockHostApiSpotify,
+  mocAccountApiSpotify,
   mockUrlEncodedData,
   mockResponseData,
   mockAuthLog,
@@ -75,7 +75,7 @@ describe('AuthService', () => {
 
     expect(result).toEqual(mockAccessTokenResponse);
     expect(mockHttpCustomService.post).toHaveBeenCalledWith(
-      mockHostApiSpotify,
+      mocAccountApiSpotify,
       mockUrlEncodedData,
     );
   });
