@@ -14,6 +14,8 @@
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
+    "test:ver": "jest --verbose",
+    "test:vercov": "jest --verbose --coverage",
     "test:one": "jest src/auth/auth.controller.spec.ts",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
