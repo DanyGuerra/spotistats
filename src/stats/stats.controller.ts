@@ -25,15 +25,19 @@ export class StatsController {
   async getUserInfo(@Query() querys: GetByIdDto): Promise<ISpotifyProfile> {
     this.logger.info('Starting stats/me route...');
 
-    const { id } = querys;
-    const authLog = await this.authService.getAuthLog(id);
-    const userData = await this.statsService.getUserProfile(
-      authLog.accessToken,
-    );
+    try {
+      const { id } = querys;
+      const authLog = await this.authService.getAuthLog(id);
+      const userData = await this.statsService.getUserProfile(
+        authLog.accessToken,
+      );
 
-    this.logger.info('End stats/me route');
-
-    return userData;
+      return userData;
+    } catch (error) {
+      this.errorHandlerService.handleError(error);
+    } finally {
+      this.logger.info('End stats/me route');
+    }
   }
 
   @Get('top-artists')
@@ -48,18 +52,22 @@ export class StatsController {
   ) {
     this.logger.info('Starting stats/top-artists route...');
 
-    const params: ITopParams = { limit, time_range, offset };
+    try {
+      const params: ITopParams = { limit, time_range, offset };
 
-    const authLog = await this.authService.getAuthLog(id);
-    const topArtists = await this.statsService.getTopArtists(
-      authLog.accessToken,
-      params,
-      id,
-    );
+      const authLog = await this.authService.getAuthLog(id);
+      const topArtists = await this.statsService.getTopArtists(
+        authLog.accessToken,
+        params,
+        id,
+      );
 
-    this.logger.info('End stats/top-artists route');
-
-    return topArtists;
+      return topArtists;
+    } catch (error) {
+      this.errorHandlerService.handleError(error);
+    } finally {
+      this.logger.info('End stats/top-artists route');
+    }
   }
 
   @Get('top-tracks')
@@ -74,18 +82,22 @@ export class StatsController {
   ) {
     this.logger.info('Starting stats/top-artists route...');
 
-    const params: ITopParams = { limit, time_range, offset };
+    try {
+      const params: ITopParams = { limit, time_range, offset };
 
-    const authLog = await this.authService.getAuthLog(id);
-    const topArtists = await this.statsService.getTopTracks(
-      authLog.accessToken,
-      params,
-      id,
-    );
+      const authLog = await this.authService.getAuthLog(id);
+      const topArtists = await this.statsService.getTopTracks(
+        authLog.accessToken,
+        params,
+        id,
+      );
 
-    this.logger.info('End stats/top-artists route');
-
-    return topArtists;
+      return topArtists;
+    } catch (error) {
+      this.errorHandlerService.handleError(error);
+    } finally {
+      this.logger.info('End stats/top-artists route');
+    }
   }
 
   @Get('recently-played')
@@ -124,16 +136,20 @@ export class StatsController {
   ) {
     this.logger.info('Starting stats/currently-playing route...');
 
-    const authLog = await this.authService.getAuthLog(id);
-    const { data, status, statusText } =
-      await this.statsService.getCurrentlyPlaying(authLog.accessToken);
+    try {
+      const authLog = await this.authService.getAuthLog(id);
+      const { data, status, statusText } =
+        await this.statsService.getCurrentlyPlaying(authLog.accessToken);
 
-    this.logger.info('End stats/currently-playing route');
-
-    return res.status(status).json({
-      statusCode: status,
-      message: statusText,
-      data,
-    });
+      return res.status(status).json({
+        statusCode: status,
+        message: statusText,
+        data,
+      });
+    } catch (error) {
+      this.errorHandlerService.handleError(error);
+    } finally {
+      this.logger.info('End stats/currently-playing route');
+    }
   }
 }
