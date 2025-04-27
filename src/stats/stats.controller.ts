@@ -8,6 +8,9 @@ import { GetTopArtistDto } from 'src/common/dto/get-top-artists.dto';
 import { Response } from 'express';
 import { GetRecentlyPlayedDto } from 'src/common/dto/get-recently-played.dto';
 import { IRecentlyPlayedParams } from 'src/common/interfaces/IRecentlyPlayedParams';
+import { ITopParams, TopTimeRange } from 'src/common/interfaces/IParamsTop';
+import { GetTopTracksDto } from 'src/common/dto/get-top-tracks.dto';
+import { ErrorHandlerService } from 'src/common/exceptions/error-handler.service';
 
 @Controller('stats')
 export class StatsController {
@@ -15,6 +18,7 @@ export class StatsController {
     @InjectPinoLogger(StatsController.name) private readonly logger: PinoLogger,
     private readonly authService: AuthService,
     private readonly statsService: StatsService,
+    private readonly errorHandlerService: ErrorHandlerService,
   ) {}
 
   @Get('me')
@@ -35,11 +39,16 @@ export class StatsController {
   @Get('top-artists')
   async myTopArtist(
     @Query()
-    { id, limit = 50, time_range = 'long_term', offset }: GetTopArtistDto,
+    {
+      id,
+      limit = 50,
+      time_range = TopTimeRange.LongTerm,
+      offset,
+    }: GetTopArtistDto,
   ) {
     this.logger.info('Starting stats/top-artists route...');
 
-    const params = { limit, time_range, offset };
+    const params: ITopParams = { limit, time_range, offset };
 
     const authLog = await this.authService.getAuthLog(id);
     const topArtists = await this.statsService.getTopArtists(
@@ -56,11 +65,16 @@ export class StatsController {
   @Get('top-tracks')
   async myTopTracks(
     @Query()
-    { id, limit = 50, time_range = 'long_term', offset }: GetTopArtistDto,
+    {
+      id,
+      limit = 50,
+      time_range = TopTimeRange.LongTerm,
+      offset,
+    }: GetTopTracksDto,
   ) {
     this.logger.info('Starting stats/top-artists route...');
 
-    const params = { limit, time_range, offset };
+    const params: ITopParams = { limit, time_range, offset };
 
     const authLog = await this.authService.getAuthLog(id);
     const topArtists = await this.statsService.getTopTracks(
@@ -81,21 +95,25 @@ export class StatsController {
   ) {
     this.logger.info('Starting stats/recently-played route...');
 
-    const params: IRecentlyPlayedParams = { limit };
+    try {
+      const params: IRecentlyPlayedParams = { limit };
 
-    if (before) params.before = before;
-    if (after) params.after = after;
+      if (before) params.before = before;
+      if (after) params.after = after;
 
-    const authLog = await this.authService.getAuthLog(id);
-    const recentlyPlayed = await this.statsService.getRecentlyPlayed(
-      authLog.accessToken,
-      params,
-      id,
-    );
+      const authLog = await this.authService.getAuthLog(id);
+      const recentlyPlayed = await this.statsService.getRecentlyPlayed(
+        authLog.accessToken,
+        params,
+        id,
+      );
 
-    this.logger.info('End stats/recently-played route');
-
-    return recentlyPlayed;
+      return recentlyPlayed;
+    } catch (error) {
+      this.errorHandlerService.handleError(error);
+    } finally {
+      this.logger.info('End stats/recently-played route');
+    }
   }
 
   @Get('currently-playing')
