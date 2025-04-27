@@ -231,7 +231,10 @@ describe('AuthService', () => {
       NotFoundException,
     );
 
-    expect(mockAuthLogModel.findById).toHaveBeenCalledWith(idNotFound);
+    expect(mockAuthLogModel.findByIdAndUpdate).toHaveBeenCalledWith(
+      idNotFound,
+      { accessToken: mockAccessTokenResponse.data.access_token },
+    );
   });
 
   it('[deleteAuthLog] should delete the auth log', async () => {
