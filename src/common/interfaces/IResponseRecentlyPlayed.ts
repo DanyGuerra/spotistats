@@ -1,12 +1,12 @@
-export interface IResponseRecentlyPlayed {
-  items: Item[];
+export interface IRecentlyPlayedData {
+  items: TrackPlayed[];
   next: string;
   cursors: Cursors;
   limit: number;
   href: string;
 }
 
-export interface Item {
+export interface TrackPlayed {
   track: Track;
   played_at: string;
   context: any;

@@ -4,13 +4,14 @@ import { ConfigService } from '@nestjs/config';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 import { ISpotifyProfile } from 'src/common/interfaces/ISpotifyProfile';
 import * as qs from 'querystring';
-import { ErrorHandlerService } from 'src/common/exceptions/error-handler.service';
 import { HttpCustomService } from 'src/common/CustomHttp/custom-http.service';
-import { IResponseTopArtists } from 'src/common/interfaces/IResponseTopArtists';
+import { ITopArtistData } from 'src/common/interfaces/IResponseTopArtists';
 import { addRankingNumbers, formatPaginationUrls } from 'src/utils/utils';
-import { IResponseTopTracks } from 'src/common/interfaces/IResponseTopTracks';
-import { IResponseCurrentlyPlaying } from 'src/common/interfaces/IResponseCurrentlyPlaying';
-import { IResponseRecentlyPlayed } from 'src/common/interfaces/IResponseRecentlyPlayed';
+import { ITopTrackData } from 'src/common/interfaces/IResponseTopTracks';
+import { ICurrentlyPlaying } from 'src/common/interfaces/IResponseCurrentlyPlaying';
+import { IRecentlyPlayedData } from 'src/common/interfaces/IResponseRecentlyPlayed';
+import { ITopParams } from 'src/common/interfaces/IParamsTop';
+import { IRecentlyPlayedParams } from 'src/common/interfaces/IRecentlyPlayedParams';
 
 @Injectable()
 export class StatsService {
@@ -21,7 +22,6 @@ export class StatsService {
   constructor(
     private readonly httpService: HttpCustomService,
     private readonly configService: ConfigService,
-    private readonly errorhandlerService: ErrorHandlerService,
     @InjectPinoLogger(StatsService.name) private readonly logger: PinoLogger,
   ) {
     const { hostApiSpotify } = this.configService.get<{
@@ -52,19 +52,19 @@ export class StatsService {
 
   async getTopArtists(
     accessToken: string,
-    params,
-    id,
-  ): Promise<IResponseTopArtists> {
+    params: ITopParams,
+    id: string,
+  ): Promise<ITopArtistData> {
     this.logger.info('Starting getTopArtists...');
 
     const headers = {
       Authorization: `Bearer ${accessToken}`,
     };
 
-    const querys = qs.stringify(params);
+    const querys = qs.stringify(params as any);
 
     const { data } = await firstValueFrom(
-      this.httpService.get<IResponseTopArtists>(
+      this.httpService.get<ITopArtistData>(
         `${this.hostApiSpotify}/v1/me/top/artists?${querys}`,
         {
           headers,
@@ -72,8 +72,8 @@ export class StatsService {
       ),
     );
 
-    const rankData = addRankingNumbers<IResponseTopArtists>(data);
-    const formattedData = formatPaginationUrls<IResponseTopArtists>(
+    const rankData = addRankingNumbers<ITopArtistData>(data);
+    const formattedData = formatPaginationUrls<ITopArtistData>(
       rankData,
       id,
       `${this.hostApiSpotify}/v1/me/top/artists`,
@@ -87,19 +87,19 @@ export class StatsService {
 
   async getTopTracks(
     accessToken: string,
-    params,
+    params: ITopParams,
     id,
-  ): Promise<IResponseTopTracks> {
+  ): Promise<ITopTrackData> {
     this.logger.info('Starting getTopTracks...');
 
     const headers = {
       Authorization: `Bearer ${accessToken}`,
     };
 
-    const querys = qs.stringify(params);
+    const querys = qs.stringify(params as any);
 
     const { data } = await firstValueFrom(
-      this.httpService.get<IResponseTopTracks>(
+      this.httpService.get<ITopTrackData>(
         `${this.hostApiSpotify}/v1/me/top/tracks?${querys}`,
         {
           headers,
@@ -107,8 +107,8 @@ export class StatsService {
       ),
     );
 
-    const rankData = addRankingNumbers<IResponseTopTracks>(data);
-    const formattedData = formatPaginationUrls<IResponseTopTracks>(
+    const rankData = addRankingNumbers<ITopTrackData>(data);
+    const formattedData = formatPaginationUrls<ITopTrackData>(
       rankData,
       id,
       `${this.hostApiSpotify}/v1/me/top/tracks`,
@@ -122,19 +122,19 @@ export class StatsService {
 
   async getRecentlyPlayed(
     accessToken: string,
-    params,
-    id,
-  ): Promise<IResponseRecentlyPlayed> {
+    params: IRecentlyPlayedParams,
+    id: string,
+  ): Promise<IRecentlyPlayedData> {
     this.logger.info('Starting getRecentlyPlayed...');
 
     const headers = {
       Authorization: `Bearer ${accessToken}`,
     };
 
-    const querys = qs.stringify(params);
+    const querys = qs.stringify(params as any);
 
     const { data } = await firstValueFrom(
-      this.httpService.get<IResponseRecentlyPlayed>(
+      this.httpService.get<IRecentlyPlayedData>(
         `${this.hostApiSpotify}/v1/me/player/recently-played?${querys}`,
         {
           headers,
@@ -142,7 +142,7 @@ export class StatsService {
       ),
     );
 
-    const formatedData = formatPaginationUrls<IResponseRecentlyPlayed>(
+    const formatedData = formatPaginationUrls<IRecentlyPlayedData>(
       data,
       id,
       `${this.hostApiSpotify}/v1/me/player/recently-played`,
@@ -162,7 +162,7 @@ export class StatsService {
     };
 
     const { data, status, statusText } = await firstValueFrom(
-      this.httpService.get<IResponseCurrentlyPlaying>(
+      this.httpService.get<ICurrentlyPlaying>(
         `${this.hostApiSpotify}/v1/me/player/currently-playing`,
         {
           headers,

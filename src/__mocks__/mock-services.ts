@@ -19,7 +19,7 @@ export const mockStatsService = {
 };
 
 export const mockEnvVariables = {
-  host: 'http://localhost:4200',
+  host: 'http://localhost:3001',
   port: 3000,
   apiContext: 'api/v',
   hostFrontEnd: 'http://localhost:4200',

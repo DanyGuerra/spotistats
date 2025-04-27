@@ -1,5 +1,5 @@
-export interface IResponseTopArtists {
-  items: Item[];
+export interface ITopArtistData {
+  items: TopArtistItem[];
   total: number;
   limit: number;
   offset: number;
@@ -8,7 +8,7 @@ export interface IResponseTopArtists {
   previous: any;
 }
 
-export interface Item {
+export interface TopArtistItem {
   external_urls: ExternalUrls;
   followers: Followers;
   genres: string[];
@@ -19,7 +19,7 @@ export interface Item {
   popularity: number;
   type: string;
   uri: string;
-  rank_number: number;
+  rank_number?: number;
 }
 
 export interface ExternalUrls {

@@ -1,5 +1,5 @@
-export interface IResponseTopTracks {
-  items: Item[];
+export interface ITopTrackData {
+  items: TopTrackItem[];
   total: number;
   limit: number;
   offset: number;
@@ -8,7 +8,7 @@ export interface IResponseTopTracks {
   previous: any;
 }
 
-export interface Item {
+export interface TopTrackItem {
   album: Album;
   artists: Artist2[];
   available_markets: string[];
@@ -20,13 +20,14 @@ export interface Item {
   href: string;
   id: string;
   is_local: boolean;
+  is_playable: boolean;
   name: string;
   popularity: number;
-  preview_url?: string;
+  preview_url?: any;
   track_number: number;
   type: string;
   uri: string;
-  rank_number: number;
+  rank_number?: number;
 }
 
 export interface Album {
@@ -37,6 +38,7 @@ export interface Album {
   href: string;
   id: string;
   images: Image[];
+  is_playable: boolean;
   name: string;
   release_date: string;
   release_date_precision: string;

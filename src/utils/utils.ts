@@ -1,11 +1,8 @@
-import { IResponseRecentlyPlayed } from 'src/common/interfaces/IResponseRecentlyPlayed';
-import { IResponseTopArtists } from 'src/common/interfaces/IResponseTopArtists';
-import { IResponseTopTracks } from 'src/common/interfaces/IResponseTopTracks';
+import { IRecentlyPlayedData } from 'src/common/interfaces/IResponseRecentlyPlayed';
+import { ITopArtistData } from 'src/common/interfaces/IResponseTopArtists';
+import { ITopTrackData } from 'src/common/interfaces/IResponseTopTracks';
 
-type IResponseTopItems =
-  | IResponseTopArtists
-  | IResponseTopTracks
-  | IResponseRecentlyPlayed;
+type IResponseTopItems = ITopArtistData | ITopTrackData | IRecentlyPlayedData;
 
 export const urlReplace = (
   id,
@@ -22,9 +19,7 @@ export const urlReplace = (
   return `${urlFormatted}&id=${id}`;
 };
 
-export const addRankingNumbers = <
-  T extends IResponseTopArtists | IResponseTopTracks,
->(
+export const addRankingNumbers = <T extends ITopArtistData | ITopTrackData>(
   data: T,
 ): T => {
   const copyData = { ...data };

@@ -1,4 +1,4 @@
-export interface IResponseCurrentlyPlaying {
+export interface ICurrentlyPlaying {
   timestamp: number;
   context: any;
   progress_ms: number;
@@ -94,7 +94,8 @@ export interface Actions {
 
 export interface Disallows {
   resuming: boolean;
-  toggling_repeat_context: boolean;
-  toggling_repeat_track: boolean;
-  toggling_shuffle: boolean;
+  toggling_repeat_context?: boolean;
+  toggling_repeat_track?: boolean;
+  toggling_shuffle?: boolean;
+  skipping_prev: boolean;
 }
