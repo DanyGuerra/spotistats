@@ -1,4 +1,5 @@
 module.exports = {
+  clearMocks: true,
   moduleFileExtensions: ['js', 'json', 'ts'],
   roots: ['<rootDir>/src'],
   rootDir: '.',
