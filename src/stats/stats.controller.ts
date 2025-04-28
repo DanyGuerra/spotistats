@@ -47,7 +47,7 @@ export class StatsController {
       id,
       limit = 50,
       time_range = TopTimeRange.LongTerm,
-      offset,
+      offset = 0,
     }: GetTopArtistDto,
   ) {
     this.logger.info('Starting stats/top-artists route...');
@@ -77,7 +77,7 @@ export class StatsController {
       id,
       limit = 50,
       time_range = TopTimeRange.LongTerm,
-      offset,
+      offset = 0,
     }: GetTopTracksDto,
   ) {
     this.logger.info('Starting stats/top-artists route...');
@@ -111,7 +111,7 @@ export class StatsController {
       const params: IRecentlyPlayedParams = { limit };
 
       if (before) params.before = before;
-      if (after) params.after = after;
+      else if (after) params.after = after;
 
       const authLog = await this.authService.getAuthLog(id);
       const recentlyPlayed = await this.statsService.getRecentlyPlayed(

@@ -1,4 +1,8 @@
 import { mockEnvVariables } from 'src/__mocks__/mock-services';
+import { GetByIdDto } from 'src/common/dto/get-by-id.dto';
+import { GetRecentlyPlayedDto } from 'src/common/dto/get-recently-played.dto';
+import { GetTopArtistDto } from 'src/common/dto/get-top-artists.dto';
+import { GetTopTracksDto } from 'src/common/dto/get-top-tracks.dto';
 import { ITopParams, TopTimeRange } from 'src/common/interfaces/IParamsTop';
 import { IRecentlyPlayedParams } from 'src/common/interfaces/IRecentlyPlayedParams';
 import { ICurrentlyPlaying } from 'src/common/interfaces/IResponseCurrentlyPlaying';
@@ -68,6 +72,46 @@ export const mockParamsTop: ITopParams = {
 export const mockParamsRecently: IRecentlyPlayedParams = {
   limit: 50,
 };
+
+export const mockTopArtistsParams: GetTopArtistDto = {
+  id: 'mock-id',
+  ...mockParamsTop,
+};
+
+export const mockDefaultTopArtistsParams: GetTopArtistDto = {
+  id: 'mock-id',
+};
+
+export const mockTopTracksParams: GetTopTracksDto = {
+  id: 'mock-id',
+  ...mockParamsTop,
+};
+
+export const mockDefaultTopTracksParams: GetTopTracksDto = {
+  id: 'mock-id',
+};
+
+export const mockRecentlyParams: IRecentlyPlayedParams = {
+  limit: 50,
+  before: 123127,
+};
+
+export const mockRecentlyParamsAfter: IRecentlyPlayedParams = {
+  limit: 50,
+  after: 123127,
+};
+
+export const mockRecentlyPlayedParams: GetRecentlyPlayedDto = {
+  id: 'mock-id',
+  ...mockRecentlyParams,
+};
+
+export const mockRecentlyPlayedParamsAfter: GetRecentlyPlayedDto = {
+  id: 'mock-id',
+  after: 123127,
+};
+
+export const mockAuthLogDto: GetByIdDto = { id: 'mock-id' };
 
 export const mockQuerys = `limit=${mockParamsTop.limit}&time_range=${mockParamsTop.time_range}&offset=${mockParamsTop.offset}`;
 export const mockQuerysRecently = `limit=${mockParamsRecently.limit}`;
@@ -451,8 +495,14 @@ export const mockCurrentlyPlaying: ICurrentlyPlaying = {
   is_playing: true,
 };
 
-export const mockResponseCurrentlyPlaying = {
+export const mockResCurrentlyPlaying = {
   data: mockCurrentlyPlaying,
   status: 200,
   statusText: 'ok',
+};
+
+export const mockResGetCurrentlyPlaying = {
+  statusCode: mockResCurrentlyPlaying.status,
+  message: mockResCurrentlyPlaying.statusText,
+  data: mockResCurrentlyPlaying.data,
 };

@@ -121,6 +121,15 @@ export const mockQueryError: CreateAuthLogDto = {
 
 export const mockRes = {
   redirect: jest.fn(),
+  status: jest.fn(() => ({ json: jest.fn() })),
+};
+
+export const createMockResponse = () => {
+  const res: any = {};
+  res.status = jest.fn().mockReturnValue(res);
+  res.json = jest.fn().mockImplementation((body) => body);
+  res.redirect = jest.fn();
+  return res;
 };
 
 export const mockUserProfile: ISpotifyProfile = {

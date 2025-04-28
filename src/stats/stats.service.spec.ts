@@ -22,7 +22,7 @@ import {
   mockQuerysRecently,
   mockRecentlyPlayed,
   mockRecentlyPlayedFormatted,
-  mockResponseCurrentlyPlaying,
+  mockResCurrentlyPlaying,
   mockTopArtists,
   mockTopArtistsFormatted,
   mockTopArtistsRank,
@@ -163,7 +163,7 @@ describe('Stats service', () => {
   });
 
   it('[getCurrentlyPlaying] success', async () => {
-    mockHttpCustomService.get.mockReturnValue(of(mockResponseCurrentlyPlaying));
+    mockHttpCustomService.get.mockReturnValue(of(mockResCurrentlyPlaying));
 
     const result = await service.getCurrentlyPlaying(mockAccessToken);
 
@@ -172,6 +172,6 @@ describe('Stats service', () => {
       mockHeaders,
     );
 
-    expect(result).toEqual(mockResponseCurrentlyPlaying);
+    expect(result).toEqual(mockResCurrentlyPlaying);
   });
 });

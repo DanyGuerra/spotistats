@@ -16,6 +16,10 @@ export const mockAuthService = {
 
 export const mockStatsService = {
   getUserProfile: jest.fn(),
+  getTopArtists: jest.fn(),
+  getTopTracks: jest.fn(),
+  getRecentlyPlayed: jest.fn(),
+  getCurrentlyPlaying: jest.fn(),
 };
 
 export const mockEnvVariables = {
