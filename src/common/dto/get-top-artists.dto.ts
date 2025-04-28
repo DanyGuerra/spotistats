@@ -9,11 +9,11 @@ export class GetTopArtistDto {
   readonly id: string;
 
   @IsOptional()
-  readonly time_range: TopTimeRange;
+  readonly time_range?: TopTimeRange;
 
   @IsOptional()
-  readonly limit: TopInfoLimit;
+  readonly limit?: TopInfoLimit;
 
   @IsOptional()
-  readonly offset: number;
+  readonly offset?: number;
 }
