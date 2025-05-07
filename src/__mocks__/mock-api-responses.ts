@@ -80,6 +80,14 @@ export const mockAccessTokenError: IResponseError = {
   error: { status: 401, message: 'Unauthorized' },
 };
 
+export const mockBadRequestError: IResponseError = {
+  error: { status: 400, message: 'Bad Request' },
+};
+
+export const mockInternalError: IResponseError = {
+  error: { status: 500, message: 'Bad Request' },
+};
+
 export const mockAxiosError: AxiosError = {
   isAxiosError: true,
   toJSON: () => ({}),
@@ -89,6 +97,57 @@ export const mockAxiosError: AxiosError = {
     data: mockAccessTokenError,
     status: 401,
     statusText: 'Unauthorized',
+    headers: {},
+    config: {},
+  } as AxiosResponse,
+};
+
+export const mockError = 'Unexpected error';
+
+export const mockAxiosErrorDefaulMessage: AxiosError = {
+  isAxiosError: true,
+  toJSON: () => ({}),
+  name: 'AxiosError',
+  message: 'Request failed with status code 401',
+  response: {
+    data: {},
+    status: 401,
+    statusText: 'Unauthorized',
+    headers: {},
+    config: {},
+  } as AxiosResponse,
+};
+
+export const mockAxiosErrorNoResponse: AxiosError = {
+  isAxiosError: true,
+  toJSON: () => ({}),
+  name: 'AxiosError',
+  message: 'Request failed with status code 401',
+};
+
+export const mockAxiosErrorBadRequest: AxiosError = {
+  isAxiosError: true,
+  toJSON: () => ({}),
+  name: 'AxiosError',
+  message: 'Request failed with status code 401',
+  response: {
+    data: mockBadRequestError,
+    status: 400,
+    statusText: 'Bad Request',
+    headers: {},
+    config: {},
+  } as AxiosResponse,
+};
+
+export const mockAxiosErrorDefault: AxiosError = {
+  isAxiosError: true,
+  toJSON: () => ({}),
+  name: 'AxiosError',
+  message: 'Request failed with status code 401',
+  response: {
+    data: mockInternalError,
+    status: 500,
+    statusText: 'Bad Request',
     headers: {},
     config: {},
   } as AxiosResponse,
