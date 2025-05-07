@@ -29,7 +29,7 @@ import {
   mockUpdatedAuthLog,
   mockUserId,
   mockUserProfile,
-} from './__mocks__/mock-api-responses';
+} from '../__mocks__/mock-api-responses';
 import { ErrorHandlerService } from 'src/common/exceptions/error-handler.service';
 import { HttpStatus } from '@nestjs/common';
 

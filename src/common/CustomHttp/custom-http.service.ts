@@ -17,7 +17,7 @@ export class HttpCustomService {
     config?: AxiosRequestConfig,
   ): Observable<AxiosResponse<T>> {
     this.logger.info(`GET ${url}`);
-    this.logger.debug({ config });
+    this.logger.debug(`Config ${{ config }}`);
     return this.httpService.get<T>(url, config);
   }
 

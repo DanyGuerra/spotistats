@@ -17,7 +17,7 @@ import {
   mockUriCallback,
   mockUserId,
   mockUpdatedAuthLog,
-} from './__mocks__/mock-api-responses';
+} from '../__mocks__/mock-api-responses';
 import {
   mockConfigService,
   mockHandleService,

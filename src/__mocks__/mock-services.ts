@@ -1,6 +1,15 @@
 export const mockHttpCustomService = {
   post: jest.fn(),
   get: jest.fn(),
+  put: jest.fn(),
+  delete: jest.fn(),
+};
+
+export const mockHttpService = {
+  post: jest.fn(),
+  get: jest.fn(),
+  put: jest.fn(),
+  delete: jest.fn(),
 };
 
 export const mockAuthService = {

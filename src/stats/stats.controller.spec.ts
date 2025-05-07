@@ -17,7 +17,7 @@ import {
   mockAuthLog,
   mockAxiosError,
   mockQueryGetId,
-} from 'src/auth/__mocks__/mock-api-responses';
+} from 'src/__mocks__/mock-api-responses';
 import {
   mockTopArtistsParams,
   mockParamsTop,

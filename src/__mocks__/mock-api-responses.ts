@@ -1,10 +1,38 @@
-import { IResponseAccessToken } from './../../common/interfaces/IResponseAccessToken';
-import { AxiosError, AxiosHeaders, AxiosResponse } from 'axios';
+import { IResponseAccessToken } from '../common/interfaces/IResponseAccessToken';
+import {
+  AxiosError,
+  AxiosHeaders,
+  AxiosRequestConfig,
+  AxiosResponse,
+} from 'axios';
 import { AuthLog } from 'src/auth/auth-logs.schema';
 import { CreateAuthLogDto } from 'src/common/dto/create-auth-log.dto';
 import { GetByIdDto } from 'src/common/dto/get-by-id.dto';
 import { IResponseError } from 'src/common/interfaces/IResponseError';
 import { ISpotifyProfile } from 'src/common/interfaces/ISpotifyProfile';
+
+export const mockUrl: string = 'http://mock-url.com/';
+
+export const mockConfig: AxiosRequestConfig = {
+  headers: { Authorization: 'Bearer token' },
+};
+
+export const mockGenericData: any = {
+  data: [
+    { id: 1, trackName: 'TrackName1' },
+    { id: 2, trackName: 'TrackName2' },
+  ],
+};
+
+export const mockSuccessResponse: AxiosResponse = {
+  data: { success: true },
+  status: 200,
+  statusText: 'OK',
+  headers: {},
+  config: {
+    headers: new AxiosHeaders(),
+  },
+};
 
 export const mockAccessTokenResponse: AxiosResponse<IResponseAccessToken> = {
   data: {
