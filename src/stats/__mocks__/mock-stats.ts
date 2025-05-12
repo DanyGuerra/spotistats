@@ -160,8 +160,9 @@ export const mockTopArtists: ITopArtistData = {
   total: 522,
   limit: 1,
   offset: 0,
-  href: `${mockEnvVariables.spotifyApi.hostApiSpotify}/stats/top-artists?limit=1&time_range=long_term&id=id`,
-  next: `${mockEnvVariables.spotifyApi.hostApiSpotify}/stats/top-artists?offset=1&limit=1&time_range=long_term&id=id`,
+
+  href: `${mockEnvVariables.spotifyApi.hostApiSpotify}/stats/top-artists?limit=1&time_range=long_term`,
+  next: `${mockEnvVariables.spotifyApi.hostApiSpotify}/stats/top-artists?offset=1&limit=1&time_range=long_term`,
   previous: null,
 };
 
@@ -170,8 +171,8 @@ export const mockTopArtistsRank: ITopArtistData = {
   total: 522,
   limit: 1,
   offset: 0,
-  href: `${mockEnvVariables.spotifyApi.hostApiSpotify}/stats/top-artists}?limit=1&time_range=long_term&id=id`,
-  next: `${mockEnvVariables.spotifyApi.hostApiSpotify}/stats/top-artists?offset=1&limit=1&time_range=long_term&id=id`,
+  href: `${mockEnvVariables.spotifyApi.hostApiSpotify}/stats/top-artists?limit=1&time_range=long_term`,
+  next: `${mockEnvVariables.spotifyApi.hostApiSpotify}/stats/top-artists?offset=1&limit=1&time_range=long_term`,
   previous: null,
 };
 
