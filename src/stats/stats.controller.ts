@@ -8,6 +8,9 @@ import { GetTopArtistDto } from 'src/common/dto/get-top-artists.dto';
 import { Response } from 'express';
 import { GetRecentlyPlayedDto } from 'src/common/dto/get-recently-played.dto';
 import { IRecentlyPlayedParams } from 'src/common/interfaces/IRecentlyPlayedParams';
+import { ITopParams, TopTimeRange } from 'src/common/interfaces/IParamsTop';
+import { GetTopTracksDto } from 'src/common/dto/get-top-tracks.dto';
+import { ErrorHandlerService } from 'src/common/exceptions/error-handler.service';
 
 @Controller('stats')
 export class StatsController {
@@ -15,63 +18,86 @@ export class StatsController {
     @InjectPinoLogger(StatsController.name) private readonly logger: PinoLogger,
     private readonly authService: AuthService,
     private readonly statsService: StatsService,
+    private readonly errorHandlerService: ErrorHandlerService,
   ) {}
 
   @Get('me')
   async getUserInfo(@Query() querys: GetByIdDto): Promise<ISpotifyProfile> {
     this.logger.info('Starting stats/me route...');
 
-    const { id } = querys;
-    const authLog = await this.authService.getAuthLog(id);
-    const userData = await this.statsService.getUserProfile(
-      authLog.accessToken,
-    );
+    try {
+      const { id } = querys;
+      const authLog = await this.authService.getAuthLog(id);
+      const userData = await this.statsService.getUserProfile(
+        authLog.accessToken,
+      );
 
-    this.logger.info('End stats/me route');
-
-    return userData;
+      return userData;
+    } catch (error) {
+      this.errorHandlerService.handleError(error);
+    } finally {
+      this.logger.info('End stats/me route');
+    }
   }
 
   @Get('top-artists')
   async myTopArtist(
     @Query()
-    { id, limit = 50, time_range = 'long_term', offset }: GetTopArtistDto,
+    {
+      id,
+      limit = 50,
+      time_range = TopTimeRange.LongTerm,
+      offset = 0,
+    }: GetTopArtistDto,
   ) {
     this.logger.info('Starting stats/top-artists route...');
 
-    const params = { limit, time_range, offset };
+    try {
+      const params: ITopParams = { limit, time_range, offset };
 
-    const authLog = await this.authService.getAuthLog(id);
-    const topArtists = await this.statsService.getTopArtists(
-      authLog.accessToken,
-      params,
-      id,
-    );
+      const authLog = await this.authService.getAuthLog(id);
+      const topArtists = await this.statsService.getTopArtists(
+        authLog.accessToken,
+        params,
+        id,
+      );
 
-    this.logger.info('End stats/top-artists route');
-
-    return topArtists;
+      return topArtists;
+    } catch (error) {
+      this.errorHandlerService.handleError(error);
+    } finally {
+      this.logger.info('End stats/top-artists route');
+    }
   }
 
   @Get('top-tracks')
   async myTopTracks(
     @Query()
-    { id, limit = 50, time_range = 'long_term', offset }: GetTopArtistDto,
+    {
+      id,
+      limit = 50,
+      time_range = TopTimeRange.LongTerm,
+      offset = 0,
+    }: GetTopTracksDto,
   ) {
     this.logger.info('Starting stats/top-artists route...');
 
-    const params = { limit, time_range, offset };
+    try {
+      const params: ITopParams = { limit, time_range, offset };
 
-    const authLog = await this.authService.getAuthLog(id);
-    const topArtists = await this.statsService.getTopTracks(
-      authLog.accessToken,
-      params,
-      id,
-    );
+      const authLog = await this.authService.getAuthLog(id);
+      const topArtists = await this.statsService.getTopTracks(
+        authLog.accessToken,
+        params,
+        id,
+      );
 
-    this.logger.info('End stats/top-artists route');
-
-    return topArtists;
+      return topArtists;
+    } catch (error) {
+      this.errorHandlerService.handleError(error);
+    } finally {
+      this.logger.info('End stats/top-artists route');
+    }
   }
 
   @Get('recently-played')
@@ -81,21 +107,25 @@ export class StatsController {
   ) {
     this.logger.info('Starting stats/recently-played route...');
 
-    const params: IRecentlyPlayedParams = { limit };
+    try {
+      const params: IRecentlyPlayedParams = { limit };
 
-    if (before) params.before = before;
-    if (after) params.after = after;
+      if (before) params.before = before;
+      else if (after) params.after = after;
 
-    const authLog = await this.authService.getAuthLog(id);
-    const recentlyPlayed = await this.statsService.getRecentlyPlayed(
-      authLog.accessToken,
-      params,
-      id,
-    );
+      const authLog = await this.authService.getAuthLog(id);
+      const recentlyPlayed = await this.statsService.getRecentlyPlayed(
+        authLog.accessToken,
+        params,
+        id,
+      );
 
-    this.logger.info('End stats/recently-played route');
-
-    return recentlyPlayed;
+      return recentlyPlayed;
+    } catch (error) {
+      this.errorHandlerService.handleError(error);
+    } finally {
+      this.logger.info('End stats/recently-played route');
+    }
   }
 
   @Get('currently-playing')
@@ -106,16 +136,20 @@ export class StatsController {
   ) {
     this.logger.info('Starting stats/currently-playing route...');
 
-    const authLog = await this.authService.getAuthLog(id);
-    const { data, status, statusText } =
-      await this.statsService.getCurrentlyPlaying(authLog.accessToken);
+    try {
+      const authLog = await this.authService.getAuthLog(id);
+      const { data, status, statusText } =
+        await this.statsService.getCurrentlyPlaying(authLog.accessToken);
 
-    this.logger.info('End stats/currently-playing route');
-
-    return res.status(status).json({
-      statusCode: status,
-      message: statusText,
-      data,
-    });
+      return res.status(status).json({
+        statusCode: status,
+        message: statusText,
+        data,
+      });
+    } catch (error) {
+      this.errorHandlerService.handleError(error);
+    } finally {
+      this.logger.info('End stats/currently-playing route');
+    }
   }
 }

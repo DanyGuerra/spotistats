@@ -1,7 +1,7 @@
 import { IsDefined, IsMongoId, IsOptional } from 'class-validator';
 import { TopInfoLimit, TopTimeRange } from '../interfaces/IParamsTop';
 
-export class GetTopArtistDto {
+export class GetTopTracksDto {
   @IsMongoId({
     message: 'Id is not a MongoDB Id valid.',
   })

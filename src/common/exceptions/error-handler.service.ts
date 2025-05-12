@@ -16,26 +16,33 @@ export class ErrorHandlerService {
     private readonly logger: PinoLogger,
   ) {}
 
-  handleError(error: AxiosError) {
-    if (!error.response) {
-      throw new InternalServerErrorException('Unexpected error occurred');
+  handleError(error: any) {
+    this.logger.error(error);
+
+    if (error.isAxiosError) {
+      const axiosError = error as AxiosError;
+
+      if (!axiosError.response) {
+        throw new InternalServerErrorException('Unexpected error occurred');
+      }
+
+      const data = axiosError.response.data as IResponseError;
+
+      const errorResponse: IDefaultResponse = {
+        statusCode: data?.error?.status || 500,
+        message: data?.error?.message || 'Unknown Axios error',
+      };
+
+      switch (data?.error?.status) {
+        case 401:
+          throw new UnauthorizedException(errorResponse);
+        case 400:
+          throw new BadRequestException(errorResponse);
+        default:
+          throw new InternalServerErrorException(errorResponse);
+      }
     }
 
-    this.logger.error(error.response.data);
-
-    const data = error.response.data as IResponseError;
-
-    const errorResponse: IDefaultResponse = {
-      statusCode: data.error.status,
-      message: data.error.message,
-    };
-
-    if (data.error.status === 401) {
-      throw new UnauthorizedException(errorResponse);
-    } else if (data.error.status === 400) {
-      throw new BadRequestException(errorResponse);
-    }
-
-    throw new InternalServerErrorException(errorResponse);
+    throw error;
   }
 }
