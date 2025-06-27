@@ -3,6 +3,7 @@ export default () => ({
   host: process.env.HOST,
   apiContext: process.env.API_CONTEXT,
   hostFrontEnd: process.env.HOST_FRONTEND,
+  listHostFrontEndsCors: process.env.LIST_HOST_FRONTEND_CORS,
   database: {
     uri: process.env.MONGODB_URI,
   },
