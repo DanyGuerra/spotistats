@@ -13,13 +13,11 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const port = configService.get<string>('port');
   const apiContext = configService.get<string>('apiContext');
-  const listHostFrontEndsCors = configService.get<string>(
-    'listHostFrontEndsCors',
-  );
+  const hostFrontEnd = configService.get<string>('hostFrontEnd');
 
   app.useLogger(app.get(Logger));
   app.enableCors({
-    origin: [...listHostFrontEndsCors.split(',')],
+    origin: [...hostFrontEnd.split(',')],
     methods: ['GET', 'POST', 'DELETE'],
     credentials: true,
   });
