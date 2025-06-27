@@ -89,12 +89,6 @@ export class AuthController {
         token.access_token,
       );
 
-      const oldLog = await this.authService.getAuthLogByUserId(usernameId.id);
-
-      if (oldLog) {
-        await this.authService.deleteAuthLog(oldLog.id);
-      }
-
       const dataUpdate: CreateAuthLogDto = {
         accessToken: token.access_token,
         refreshToken: token.refresh_token,
