@@ -107,7 +107,12 @@ export class AuthService {
   }
 
   async findExistingLog(usernameId: string): Promise<AuthLog | null> {
-    return this.authLogModel.findOne({ usernameId });
+    this.logger.info('Starting findExistingLog...');
+    this.logger.info('End findExistingLog...');
+    return this.authLogModel
+      .findOne({ usernameId })
+      .sort({ createdAt: -1 })
+      .exec();
   }
 
   async getAuthLogByUserId(userId: string): Promise<AuthLog> {
