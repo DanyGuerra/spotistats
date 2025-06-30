@@ -89,6 +89,38 @@ describe('Auth Controller', () => {
       mockAccessTokenResponse.data,
     );
     mockStatsService.getUserProfile.mockResolvedValue(mockUserProfile);
+    mockAuthService.findExistingLog.mockResolvedValue(null);
+    mockAuthService.updateLog.mockResolvedValue(mockUpdatedAuthLog);
+
+    await controller.authCallBack(mockQueryCreateAuth, mockRes as any);
+
+    expect(mockAuthService.createNewLog).toHaveBeenCalledWith(
+      mockQueryCreateAuth,
+    );
+    expect(mockAuthService.createUserToken).toHaveBeenCalledWith(mockAuthLog);
+    expect(mockStatsService.getUserProfile).toHaveBeenCalledWith(
+      mockAccessTokenResponse.data.access_token,
+    );
+
+    expect(mockAuthService.updateLog).toHaveBeenCalledWith(
+      mockAuthLog.id,
+      mockDataUpdate,
+    );
+
+    expect(mockRes.redirect).toHaveBeenCalledWith(
+      HttpStatus.MOVED_PERMANENTLY,
+      `${mockEnvVariables.hostFrontEnd}/${mockUpdatedAuthLog.usernameId}`,
+    );
+  });
+
+  it('[callback] success and delete old authLog', async () => {
+    mockAuthService.createNewLog.mockResolvedValue(mockAuthLog);
+    mockAuthService.createUserToken.mockResolvedValue(
+      mockAccessTokenResponse.data,
+    );
+    mockStatsService.getUserProfile.mockResolvedValue(mockUserProfile);
+    mockAuthService.findExistingLog.mockResolvedValue(mockAuthLog);
+    mockAuthService.deleteAuthLog.mockResolvedValue(mockAuthLog);
     mockAuthService.updateLog.mockResolvedValue(mockUpdatedAuthLog);
 
     await controller.authCallBack(mockQueryCreateAuth, mockRes as any);

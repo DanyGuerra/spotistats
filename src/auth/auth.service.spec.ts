@@ -154,6 +154,19 @@ describe('AuthService', () => {
     expect(result).toEqual(mockAuthLog);
   });
 
+  it('[findExistingLog] should get the auth log', async () => {
+    mockAuthLogModel.findOne.mockReturnValue(
+      mockReturnValueFindOne(mockAuthLog),
+    );
+
+    const result = await service.findExistingLog(mockUserId);
+
+    expect(mockAuthLogModel.findOne).toHaveBeenCalledWith({
+      usernameId: mockUserId,
+    });
+    expect(result).toEqual(mockAuthLog);
+  });
+
   it('[getAuthLog] should throw NotFoundException at findById', async () => {
     mockAuthLogModel.findById.mockReturnValue({
       exec: jest.fn().mockResolvedValue(null),

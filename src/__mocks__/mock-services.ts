@@ -21,6 +21,7 @@ export const mockAuthService = {
   getAuthLogByUserId: jest.fn(),
   updateAuthToken: jest.fn(),
   deleteAuthLog: jest.fn(),
+  findExistingLog: jest.fn(),
 };
 
 export const mockStatsService = {
