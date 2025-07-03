@@ -6,7 +6,7 @@ import * as dotenv from 'dotenv';
 import { ConfigService } from '@nestjs/config';
 import { Logger } from 'nestjs-pino';
 
-async function bootstrap() {
+export async function createNestServer() {
   dotenv.config();
 
   const app = await NestFactory.create(AppModule);
@@ -32,6 +32,15 @@ async function bootstrap() {
   );
 
   app.setGlobalPrefix(apiContext);
+
+  return { app, port };
+}
+
+async function bootstrap() {
+  const { app, port } = await createNestServer();
   await app.listen(port);
 }
-bootstrap();
+
+if (!process.env.AWS_LAMBDA_FUNCTION_NAME) {
+  bootstrap();
+}
