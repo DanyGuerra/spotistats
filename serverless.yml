@@ -1,4 +1,4 @@
-service: topstats-api-dev
+service: topstats
 
 provider:
   name: aws
