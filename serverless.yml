@@ -36,6 +36,7 @@ functions:
           path: /{proxy+}
           method: any
           cors: true
+          private: true
 
 plugins:
   - serverless-offline
