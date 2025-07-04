@@ -20,6 +20,7 @@ export async function createNestServer() {
   app.enableCors({
     origin: hostFrontEnd,
     methods: ['GET', 'POST', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key'],
     credentials: true,
   });
 
