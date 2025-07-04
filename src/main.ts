@@ -15,6 +15,20 @@ export async function createNestServer() {
   const apiContext = configService.get<string>('apiContext');
 
   app.useLogger(app.get(Logger));
+  app.use((req, res, next) => {
+    if (req.method === 'OPTIONS') {
+      res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+      res.header(
+        'Access-Control-Allow-Methods',
+        'GET, POST, PUT, DELETE, OPTIONS',
+      );
+      res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+      res.header('Access-Control-Allow-Credentials', 'true');
+      return res.status(200).send();
+    }
+    next();
+  });
+
   app.enableCors({
     origin: true,
     methods: ['GET', 'POST', 'DELETE'],
