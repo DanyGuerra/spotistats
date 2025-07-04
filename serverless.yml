@@ -1,4 +1,4 @@
-service: nest-api
+service: topstats-api-dev
 
 provider:
   name: aws
@@ -36,7 +36,6 @@ functions:
           path: /{proxy+}
           method: any
           cors: true
-          private: true
 
 plugins:
   - serverless-offline
