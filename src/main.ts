@@ -17,9 +17,8 @@ export async function createNestServer() {
 
   app.useLogger(app.get(Logger));
   app.enableCors({
-    origin: [hostFrontEnd],
+    origin: '*',
     methods: ['GET', 'POST', 'DELETE'],
-    credentials: true,
   });
 
   app.useGlobalInterceptors(new ResponseInterceptor(new Reflector()));
