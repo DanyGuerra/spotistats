@@ -36,7 +36,7 @@ functions:
           path: /{proxy+}
           method: any
           cors:
-            origin: '*'
+            origin: ${ssm:/topstats-api/dev/HOST_FRONTEND}
 
 plugins:
   - serverless-offline

@@ -13,12 +13,12 @@ export async function createNestServer() {
   const configService = app.get(ConfigService);
   const port = configService.get<string>('port');
   const apiContext = configService.get<string>('apiContext');
-  const hostFrontEnd = configService.get<string>('hostFrontEnd');
 
   app.useLogger(app.get(Logger));
   app.enableCors({
-    origin: '*',
+    origin: true,
     methods: ['GET', 'POST', 'DELETE'],
+    credentials: true,
   });
 
   app.useGlobalInterceptors(new ResponseInterceptor(new Reflector()));
