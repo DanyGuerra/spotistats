@@ -37,6 +37,10 @@ functions:
           method: any
           cors:
             origin: ${ssm:/topstats-api/dev/HOST_FRONTEND}
+            headers:
+              - Content-Type
+              - Authorization
+            allowCredentials: true
 
 plugins:
   - serverless-offline
