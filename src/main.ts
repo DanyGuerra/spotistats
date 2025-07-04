@@ -6,18 +6,19 @@ import * as dotenv from 'dotenv';
 import { ConfigService } from '@nestjs/config';
 import { Logger } from 'nestjs-pino';
 
-export async function createApp() {
+export async function createNestServer() {
   dotenv.config();
 
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
-  const hostFrontEnd = configService.get<string>('hostFrontEnd');
+  const port = configService.get<string>('port');
   const apiContext = configService.get<string>('apiContext');
+  const hostFrontEnd = configService.get<string>('hostFrontEnd');
 
   app.useLogger(app.get(Logger));
 
   app.enableCors({
-    origin: hostFrontEnd || '*',
+    origin: hostFrontEnd,
     methods: ['GET', 'POST', 'DELETE'],
     credentials: true,
   });
@@ -33,36 +34,11 @@ export async function createApp() {
 
   app.setGlobalPrefix(apiContext);
 
-  await app.init();
-  return app.getHttpAdapter().getInstance();
+  return { app, port };
 }
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  const configService = app.get(ConfigService);
-  const port = configService.get<string>('port');
-  const hostFrontEnd = configService.get<string>('hostFrontEnd');
-  const apiContext = configService.get<string>('apiContext');
-
-  app.useLogger(app.get(Logger));
-
-  app.enableCors({
-    origin: hostFrontEnd || '*',
-    methods: ['GET', 'POST', 'DELETE'],
-    credentials: true,
-  });
-
-  app.useGlobalInterceptors(new ResponseInterceptor(new Reflector()));
-  app.useGlobalPipes(
-    new ValidationPipe({
-      transform: false,
-      whitelist: true,
-      forbidNonWhitelisted: true,
-    }),
-  );
-
-  app.setGlobalPrefix(apiContext);
-
+  const { app, port } = await createNestServer();
   await app.listen(port);
 }
 
