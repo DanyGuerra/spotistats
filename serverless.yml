@@ -1,0 +1,76 @@
+service: topstats
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  stage: ${opt:stage, 'dev'}
+  environment:
+    NODE_ENV: ${ssm:/topstats-api/${self:provider.stage}/NODE_ENV}
+    PORT: ${ssm:/topstats-api/${self:provider.stage}/PORT}
+    API_CONTEXT: ${ssm:/topstats-api/${self:provider.stage}/API_CONTEXT}
+    MONGODB_URI: ${ssm:/topstats-api/${self:provider.stage}/MONGODB_URI}
+    API_SPOTIFY_CLIENT_ID: ${ssm:/topstats-api/${self:provider.stage}/API_SPOTIFY_CLIENT_ID}
+    API_SPOTIFY_CLIENT_SECRET: ${ssm:/topstats-api/${self:provider.stage}/API_SPOTIFY_CLIENT_SECRET}
+    HOST_ACCOUNTS_API_SPOTIFY: ${ssm:/topstats-api/${self:provider.stage}/HOST_ACCOUNTS_API_SPOTIFY}
+    HOST_API_SPOTIFY: ${ssm:/topstats-api/${self:provider.stage}/HOST_API_SPOTIFY}
+    REDIRECT_URI_CALLBACK: ${ssm:/topstats-api/${self:provider.stage}/REDIRECT_URI_CALLBACK}
+    API_SPORIFY_USER_SCOPE: ${ssm:/topstats-api/${self:provider.stage}/API_SPORIFY_USER_SCOPE}
+    HOST: ${ssm:/topstats-api/${self:provider.stage}/HOST}
+    HOST_FRONTEND: ${ssm:/topstats-api/${self:provider.stage}/HOST_FRONTEND}
+
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - ssm:GetParameter
+            - ssm:GetParameters
+          Resource: arn:aws:ssm:us-east-1:*:parameter/topstats-api/${self:provider.stage}/*
+
+functions:
+  spotifyCallback:
+    handler: dist/lambda.handler
+    events:
+      - http:
+          path: ${ssm:/topstats-api/${self:provider.stage}/API_CONTEXT}/auth/callback
+          method: get
+          cors:
+            origin: ${ssm:/topstats-api/${self:provider.stage}/HOST_FRONTEND}
+            headers:
+              - Content-Type
+              - Authorization
+              - x-api-key
+            allowCredentials: true
+          private: false
+
+  api:
+    handler: dist/lambda.handler
+    events:
+      - http:
+          path: /{proxy+}
+          method: any
+          private: true
+          cors:
+            origin: ${ssm:/topstats-api/${self:provider.stage}/HOST_FRONTEND}
+            headers:
+              - Content-Type
+              - Authorization
+              - x-api-key
+            allowCredentials: true
+
+plugins:
+  - serverless-offline
+
+package:
+  patterns:
+    - 'dist/**'
+    - 'node_modules/@vendia/**'
+    - 'node_modules/@codegenie/**'
+    - 'node_modules/@nestjs/**'
+    - 'node_modules/express/**'
+    - '!**/*.spec.ts'
+    - '!src/**'
+  exclude:
+    - .env
+    - .env.*

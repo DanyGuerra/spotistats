@@ -15,6 +15,7 @@ import { HttpCustomService } from './common/CustomHttp/custom-http.service';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env'],
+      ignoreEnvFile: process.env.NODE_ENV === 'production',
       load: [configuration],
     }),
     MongooseModule.forRootAsync({
