@@ -29,6 +29,20 @@ provider:
           Resource: arn:aws:ssm:us-east-1:*:parameter/topstats-api/dev/*
 
 functions:
+  spotifyCallback:
+    handler: dist/lambda.handler
+    events:
+      - http:
+          path: ${ssm:/topstats-api/dev/API_CONTEXT}/auth/callback
+          method: get
+          cors:
+            origin: ${ssm:/topstats-api/dev/HOST_FRONTEND}
+            headers:
+              - Content-Type
+              - Authorization
+              - x-api-key
+            allowCredentials: true
+          private: false
   api:
     handler: dist/lambda.handler
     events:
