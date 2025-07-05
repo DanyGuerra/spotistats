@@ -35,6 +35,7 @@ functions:
       - http:
           path: /{proxy+}
           method: any
+          private: true
           cors:
             origin: ${ssm:/topstats-api/dev/HOST_FRONTEND}
             headers:
