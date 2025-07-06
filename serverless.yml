@@ -50,7 +50,7 @@ functions:
       - http:
           path: /{proxy+}
           method: any
-          private: true
+          private: false
           cors:
             origin: ${ssm:/topstats-api/${self:provider.stage}/HOST_FRONTEND}
             headers:
