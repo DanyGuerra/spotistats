@@ -1,89 +1,98 @@
 <p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
+  <img src="https://nestjs.com/img/logo-small.svg" width="120" alt="NestJS Logo" />
 </p>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+<h1 align="center">TopStatsAPI</h1>
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
+<p align="center">
+  <strong>TopStatsAPI</strong> is a serverless backend built with <a href="https://nestjs.com" target="_blank">NestJS</a> that provides Spotify statistics via the official <a href="https://developer.spotify.com/documentation/web-api" target="_blank">Spotify Web API</a>.  
 </p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-## Description
+<p align="center">
+  Deployed on <strong>AWS Lambda</strong> using the <strong>Serverless Framework</strong>.
+</p>
 
-Stotify API for spotify statistics
+<p align="center">
+  <a href="https://www.npmjs.com/package/@nestjs/core" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
+  <a href="https://www.npmjs.com/package/@nestjs/core" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="License" /></a>
+  <a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
+  <a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master" alt="Coverage" /></a>
+</p>
 
-## Envioronment variables
+---
 
-```bash
-PORT = (application port)
-NODE_ENV = (envioronment)
-HOST = (actual host)
-API_CONTEXT = (prefix api context)
-MONGODB_URI = (uri MongoDB)
-API_SPOTIFY_CLIENT_ID = (client Spotify API)
-API_SPOTIFY_CLIENT_SECRET = (secret Spotify API)
-HOST_ACCOUNTS_API_SPOTIFY = (host Spotify API accounts)
-HOST_API_SPOTIFY = (host Spotify API)
-REDIRECT_URI_CALLBACK = (redirect uri This app hosted)
-API_SPORIFY_USER_SCOPE = (user permissions)
+
+## 🔗 Live Frontend
+
+You can try the frontend application here:  
+👉 [TopStats Web App](https://d2eikr7pny939u.cloudfront.net/)
+
+## 🚀 Features
+
+- 🎵 Integration with Spotify Web API
+- 🧪 Built with NestJS modular architecture
+- ☁️ Deployed to AWS Lambda using Serverless Framework
+- 📈 Provides endpoints for user's top tracks, top artists, and listening stats
+- 🌍 Designed to be stateless and scalable
+
+---
+
+## 📦 Environment Variables
+
+Create a `.env` file in the root of the project and include the following variables:
+
+```env
+PORT=3000
+NODE_ENV=development
+HOST=http://localhost:3000
+API_CONTEXT=/api
+MONGODB_URI=mongodb+srv://<your_mongo_uri>
+API_SPOTIFY_CLIENT_ID=<spotify_client_id>
+API_SPOTIFY_CLIENT_SECRET=<spotify_client_secret>
+HOST_ACCOUNTS_API_SPOTIFY=https://accounts.spotify.com
+HOST_API_SPOTIFY=https://api.spotify.com/v1
+REDIRECT_URI_CALLBACK=http://localhost:3000/callback
+API_SPOTIFY_USER_SCOPE=user-top-read user-read-recently-played
+HOST=api_host
+HOST_FRONTEND=host_frontend
 ```
 
-## Installation
 
-```bash
-$ npm install
+
+## 📥 Installation
+
+```
+npm install
 ```
 
-## Running the app
+## 🧪 Running the App
+```
+# Development
+npm run start
 
-```bash
-# development
-$ npm run start
+# Watch mode (auto-restart on changes)
+npm run start:dev
 
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+# Production mode
+npm run start:prod
 ```
 
-## Test
+## ✅ Running Tests
+```
+# Unit tests
+npm run test
 
-```bash
-# unit tests
-$ npm run test
+# End-to-end tests
+npm run test:e2e
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+# Test coverage
+npm run test:cov
 ```
 
-## Support
+## ☁️ Deployment
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```
+serverless deploy
+```
 
-## Stay in touch
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
