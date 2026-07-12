@@ -28,4 +28,8 @@ export class CreateAuthLogDto {
   @IsString()
   @IsOptional()
   readonly refreshToken?: string;
+
+  @IsString()
+  @IsOptional()
+  readonly ubi?: string;
 }
