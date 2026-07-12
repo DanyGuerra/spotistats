@@ -3,7 +3,7 @@ name: Deploy to AWS via Serverless
 on:
   push:
     branches:
-      - ftr-aws-configuration
+      - main
 
 jobs:
   deploy:
